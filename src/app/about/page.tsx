@@ -11,7 +11,6 @@ export default function About() {
                 Home page
             </button>
             </Link>
-            
         </div>
     )
 }
