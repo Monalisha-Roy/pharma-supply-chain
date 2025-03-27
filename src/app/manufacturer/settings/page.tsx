@@ -1,12 +1,10 @@
-// Manufacturer page example
 import SideBar from "@/component/SideBar";
-import { MdDashboard, MdOutlineSettings } from "react-icons/md";
-import { GiMedicinePills } from "react-icons/gi";
-import { TbTruckDelivery } from "react-icons/tb";
 import { FaUndo } from "react-icons/fa";
+import { GiMedicinePills } from "react-icons/gi";
+import { MdDashboard, MdOutlineSettings } from "react-icons/md";
+import { TbTruckDelivery } from "react-icons/tb";
 
-
-export default function Manufacturer() {
+export default function Settings() {
     const sidebarItems = [
         {
             icon: <MdDashboard />,
@@ -38,7 +36,7 @@ export default function Manufacturer() {
     return (
         <div className="flex bg-white">
             <SideBar sidebarItems={sidebarItems} />
-            <h1 className="text-3xl text-black">Dashboard page</h1>
+            <h1 className="text-3xl text-black">Settings Page</h1>
         </div>
     );
 };
