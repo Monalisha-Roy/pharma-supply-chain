@@ -19,7 +19,7 @@ export default function SideBar({ sidebarItems = [] }: SideBarProps) {
   const userAddress = "0x34kjfs5........fasd4"; // Example address
 
   return (
-    <aside className="h-screen w-64 hidden sm:flex flex-col bg-[#82e3f2]">
+    <aside className="h-screen w-72 hidden sm:flex flex-col bg-[#82e3f2]">
       <nav className="h-full flex flex-col">
         <div className="flex items-center justify-center gap-2.5 border">
           <Image src={"/logo.png"} alt="logo" width={80} height={40} />

@@ -9,20 +9,19 @@ export default function About() {
       {/* Background Image with reduced brightness */}
       <div className="fixed inset-0 -z-10">
         <Image
-          src={"/bg.jpg"}
+          src={"/verifyBg.jpg"}
           alt={"background image"}
           fill
           style={{ objectFit: "cover" }}
-          className="brightness-40"
+          className="brightness-30"
           priority
         />
       </div>
       
       <Navbar />
       
-      {/* Main Content - Reduced height */}
-      <div className="flex flex-col items-center justify-start mt-20 space-y-6 text-center max-w-3xl bg-white bg-opacity-90 rounded-lg p-8 shadow-lg w-full">
-        <h1 className="text-4xl font-extrabold text-[#0cc0cf] drop-shadow-md">About PharmaCo</h1>
+      <div className="flex flex-col items-center justify-start mt-20 space-y-6 text-center w-9/12">
+        <h1 className="text-6xl font-extrabold text-[#0cc0cf] drop-shadow-md">About PharmaCo</h1>
         
         <div className="space-y-4">
           <p className="text-lg leading-relaxed">

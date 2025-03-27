@@ -107,9 +107,9 @@ export default function Navbar() {
               <li key={index} className="inline-block uppercase font-semibold">
                 <Link
                   href={link.path}
-                  className={`text-text hover:text-primary duration-500 text-md sm:text-sm ${
+                  className={`text-white hover:text-[#2ebfd6] duration-500 text-md sm:text-sm ${
                     pathname === link.path
-                      ? "text-primary border-b-2 border-primary"
+                      ? "text-[#2ebfd6] border-b-2 border-[#2ebfd6]"
                       : ""
                   }`}
                 >
