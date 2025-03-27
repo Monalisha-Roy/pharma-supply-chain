@@ -1,15 +1,26 @@
 "use client";
 
 import Link from "next/link";
+import Navbar from "@/component/navbar";
+import Image from "next/image";
 
 export default function IndustryLogin() {
   return (
-    <div 
-      className="w-full min-h-screen flex flex-col items-center p-10 relative bg-cover bg-center"
-      style={{ backgroundImage: "url('/entities/PharmaChain-bg.png')" }}
-    >
+    <div className="w-full min-h-screen flex flex-col items-center p-10 relative">
+      {/* Background Image with reduced brightness */}
+      <div className="fixed inset-0 -z-10">
+        <Image
+          src={"/bg.jpg"}
+          alt={"background image"}
+          fill
+          style={{ objectFit: "cover" }}
+          className="brightness-40"
+          priority
+        />
+      </div>
       
-
+      <Navbar />
+      
       {/* Main Content */}
       <div className="flex flex-col items-center justify-center h-screen space-y-6 text-black text-center pt-24">
         <div className="bg-white bg-opacity-80 p-6 rounded-lg shadow-lg flex flex-col items-center space-y-4 w-full max-w-md text-center">
@@ -40,13 +51,6 @@ export default function IndustryLogin() {
             </Link>
           </div>
         </div>
-
-        {/* Back Button */}
-        <Link href="/">
-          <button className="mt-4 p-3 px-5 bg-gray-600 text-white rounded-lg hover:bg-opacity-100 hover:scale-105 transition transform shadow-lg">
-            Back to Home
-          </button>
-        </Link>
       </div>
     </div>
   );
