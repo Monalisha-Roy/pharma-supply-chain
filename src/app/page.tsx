@@ -1,24 +1,12 @@
 "use client";
 
+import Navbar from "@/component/navbar";
 import Link from "next/link";
 
 export default function Home() {
   return (
-    <div 
-      className="w-full min-h-screen flex flex-col items-center p-10 relative bg-cover bg-center"
-      style={{ backgroundImage: "url('/entities/PharmaChain-bg.png')" }}
-    >
-      {/* Top Bar */}
-      <div className="w-full flex justify-between items-center p-4 bg-white shadow-md fixed top-0 left-0 right-0 text-black">
-        <div className="flex space-x-6">
-          <Link href="/about" className="hover:text-gray-600 transition">About</Link>
-          <Link href="/contact" className="hover:text-gray-600 transition">Contact</Link>
-          <Link href="/services" className="hover:text-gray-600 transition">Services</Link>
-        </div>
-        {/* Company Logo */}
-        <img src="/entities/PharmaChain-logotext.png" alt="PharmaChain Logo" className="w-[100px] h-[100px] object-contain" />
-      </div>
-
+    <div className="w-full min-h-screen flex flex-col items-center p-10 relative bg-white">
+      <Navbar />
       {/* Main Content */}
       <div className="flex flex-col items-center justify-center h-screen space-y-6 text-black text-center">
         <h1 className="text-4xl font-bold">Pharmaceutical Supply Chain Tracking</h1>
