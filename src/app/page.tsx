@@ -18,30 +18,21 @@ export default function Home() {
       </div>
 
       {/* Main Content */}
-<<<<<<< HEAD
-      <div className="relative z-10 flex flex-col items-center justify-center h-full space-y-6 text-white text-center">
-        <h1 className="text-6xl font-bold">Pharmaceutical Supply Chain Tracking</h1>
-        <p className="text-lg">Your one-stop solution for safe, verified, and efficient medicine tracking.</p>
-=======
-      <div className="relative z-10 flex flex-col items-center justify-center h-screen space-y-6 text-white text-center">
-
-        
+      <div className="relative z-10 flex flex-col items-center justify-center h-full space-y- text-white text-center">
         {/* Logo with Shadow */}
         <Image 
           src="/logo.png" 
           alt="Company Logo" 
           width={180} 
           height={180} 
-          className="mb-6 drop-shadow-2xl"
+          className="drop-shadow-2xl"
         />
 
-        <h1 className="text-6xl font-bold">Pharmaceutical Supply Chain Tracker.</h1>
-        <p className="text-lg max-w-2xl">Your one-stop solution for safe, verified, and efficient medicine tracking.</p>
-
->>>>>>> 09e22c02d9edcd1bf37c35458534775e655c401d
+        <h1 className="text-6xl font-bold">Pharmaceutical Supply Chain Tracker</h1>
+        <p className="text-lg max-w-2xl mt-1">Your one-stop solution for safe, verified, and efficient medicine tracking.</p>
 
         {/* Buttons */}
-        <div className="flex space-x-4">
+        <div className="flex space-x-4 mt-6">
           <Link href="/verify">
             <button className="p-3 px-5 bg-[#0cc0cf] bg-opacity-60 text-white rounded-lg hover:bg-opacity-100 hover:scale-105 transition transform shadow-lg">
               Verify Your Medication

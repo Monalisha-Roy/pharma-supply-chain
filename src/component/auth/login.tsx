@@ -65,7 +65,7 @@ const Login: React.FC<LoginProps> = ({
       <div className="relative w-11/12 sm:w-3/4 md:w-7/12 lg:w-4/12 h-auto py-10 rounded-lg bg-background border border-text flex items-center justify-center">
         <div className="flex justify-center items-center  w-full">
           <div className="flex flex-col w-full px-9 md:px-12 lg:px-16">
-            <h1 className="text-text font-semibold text-2xl md:text-3xl mb-3">
+            <h1 className="text-white font-semibold text-2xl md:text-3xl mb-3">
               Login
             </h1>
             <div className="flex flex-col justify-center items-center gap-2">
@@ -81,7 +81,7 @@ const Login: React.FC<LoginProps> = ({
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="text-gray-500 text-sm mb-2 px-5 p-2 rounded-md border"
+                    className="text-gray-200 text-sm mb-2 px-5 p-2 rounded-md border"
                     required
                   />
                 </div>
@@ -96,13 +96,13 @@ const Login: React.FC<LoginProps> = ({
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="text-gray-500 text-sm mb-2 px-5 p-2 rounded-md border"
+                    className="text-gray-200 text-sm mb-2 px-5 p-2 rounded-md border"
                     required
                   />
                   <div className="flex justify-end">
                     <a
                       onClick={switchToForgotPassword}
-                      className="text-accent text-sm right-1 hover:cursor-pointer mb-1"
+                      className="text-[#36defc] text-sm right-1 hover:cursor-pointer mb-1"
                     >
                       forgot password
                     </a>
@@ -111,7 +111,7 @@ const Login: React.FC<LoginProps> = ({
 
                 <div className="flex justify-center">
                   <button
-                    className="bg-secondary hover:bg-primary text-lg mt-1 p-2 px-6 rounded-md text-white w-full"
+                    className="bg-[#82e3f2] hover:bg-[#2ebfd6] text-lg mt-1 p-2 px-6 rounded-md text-white w-full font-bold"
                     type="submit"
                   >
                     Login
@@ -140,7 +140,7 @@ const Login: React.FC<LoginProps> = ({
                 Don&apos;t have an account?{" "}
                 <a
                   onClick={switchToSignUp}
-                  className="text-accent underline cursor-pointer"
+                  className="text-[#36defc] underline cursor-pointer"
                 >
                   Sign Up
                 </a>

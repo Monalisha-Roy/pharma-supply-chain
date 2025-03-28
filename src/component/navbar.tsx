@@ -151,7 +151,7 @@ export default function Navbar() {
           {!isLoggedIn && !showLogin && (
             <button
               onClick={() => setShowLogin(true)}
-              className="bg-transparent text-text px-4 py-1 border border-text rounded-md text-md hover:bg-text hover:text-background"
+              className="bg-transparent text-text px-4 py-1 border border-text rounded-md text-md hover:bg-[#2ebfd6] hover:border-transparent hover:text-white "
             >
               Login
             </button>
@@ -159,7 +159,7 @@ export default function Navbar() {
           {!isLoggedIn && !showSigUp && (
             <button
               onClick={() => setShowSignUp(true)}
-              className="bg-transparent text-text px-4 py-1 border border-text rounded-md text-md hover:bg-text hover:text-background"
+              className="bg-transparent text-text px-4 py-1 border border-text rounded-md text-md hover:bg-[#2ebfd6] hover:border-transparent hover:text-white "
             >
               Signup
             </button>

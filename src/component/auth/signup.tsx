@@ -64,7 +64,7 @@ const Signup: React.FC<SignupProps> = ({ show, onClose, switchToLogin  }) => {
       <div className="relative sm:w-3/4 md:w-7/12 lg:w-4/12 h-auto py-6 md:py-8 lg:py-10 rounded-lg bg-background border border-text flex items-center justify-center">
         <div className="flex justify-center items-center  w-full">
           <div className="flex flex-col w-full px-9 md:px-12 lg:px-16">
-            <h1 className="text-text font-semibold text-2xl md:text-3xl mb-3">
+            <h1 className="text-white font-semibold text-2xl md:text-3xl mb-3">
               Sign Up
             </h1>
             {error && <p className="text-red-500">{error}</p>}
@@ -78,7 +78,7 @@ const Signup: React.FC<SignupProps> = ({ show, onClose, switchToLogin  }) => {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="text-gray-500 text-sm mb-2 px-5 p-2 rounded-md border"
+                    className="text-gray-200 text-sm mb-2 px-5 p-2 rounded-md border"
                     required
                   />
                 </div>
@@ -90,14 +90,14 @@ const Signup: React.FC<SignupProps> = ({ show, onClose, switchToLogin  }) => {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="text-gray-500 text-sm mb-2 px-5 p-2 rounded-md border"
+                    className="text-gray-200 text-sm mb-2 px-5 p-2 rounded-md border"
                     required
                   />
                 </div>
                 
                 <div className="flex justify-center">
                   <button
-                    className="bg-secondary text-lg hover:bg-primary mt-3 p-2 px-6 rounded-md text-white w-full"
+                    className="bg-[#82e3f2] hover:bg-[#2ebfd6] text-lg mt-1 p-2 px-6 rounded-md text-white w-full font-bold"
                     type="submit"
                   >
                     Sign Up
@@ -113,7 +113,7 @@ const Signup: React.FC<SignupProps> = ({ show, onClose, switchToLogin  }) => {
               <button onClick={handleGoogleLogin} className="flex items-center justify-center gap-1 border border-background w-full text-lg p-2 rounded-md text-background bg-white">
                 Sign in with Google<FcGoogle size={20} className="hover:cursor-pointer" />
               </button>
-              <p className="text-sm text-text">Already have an account? <a onClick={switchToLogin} className="text-accent underline hover:cursor-pointer">Login</a></p>
+              <p className="text-sm text-text">Already have an account? <a onClick={switchToLogin} className="text-[#36defc] underline hover:cursor-pointer">Login</a></p>
             </div>
           </div>
           <div className="">
