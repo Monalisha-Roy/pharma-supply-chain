@@ -1,6 +1,4 @@
 "use client";
-
-import Navbar from "@/component/navbar";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -21,6 +19,7 @@ export default function Home() {
 
       {/* Main Content */}
       <div className="relative z-10 flex flex-col items-center justify-center h-screen space-y-6 text-white text-center">
+
         
         {/* Logo with Shadow */}
         <Image 
@@ -31,8 +30,9 @@ export default function Home() {
           className="mb-6 drop-shadow-2xl"
         />
 
-        <h1 className="text-4xl font-bold">Pharmaceutical Supply Chain Tracking</h1>
+        <h1 className="text-6xl font-bold">Pharmaceutical Supply Chain Tracker.</h1>
         <p className="text-lg max-w-2xl">Your one-stop solution for safe, verified, and efficient medicine tracking.</p>
+
 
         {/* Buttons */}
         <div className="flex space-x-4">
