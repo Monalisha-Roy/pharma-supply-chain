@@ -33,7 +33,7 @@ export default function SideBar({ sidebarItems = [] }: SideBarProps) {
                 icon={item.icon}
                 text={item.text}
                 route={item.route}
-                pathname={pathname}
+                pathname={pathname || ""}
               />
             ))}
           </ul>

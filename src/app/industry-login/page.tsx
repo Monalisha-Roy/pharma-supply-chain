@@ -1,12 +1,10 @@
 "use client";
-
 import Link from "next/link";
-import Navbar from "@/component/navbar";
 import Image from "next/image";
 
 export default function IndustryLogin() {
   return (
-    <div className="w-full min-h-screen flex flex-col items-center p-10 relative">
+    <div className="w-full h-screen flex flex-col items-center p-10 relative overflow-hidden">
       {/* Background Image with reduced brightness */}
       <div className="fixed inset-0 -z-10">
         <Image
@@ -19,10 +17,8 @@ export default function IndustryLogin() {
         />
       </div>
       
-      <Navbar />
-      
       {/* Main Content */}
-      <div className="flex flex-col items-center justify-center h-screen space-y-6 text-black text-center pt-24">
+      <div className="flex flex-col items-center justify-center h-full space-y-6 text-black text-center pt-24">
         <div className="bg-white bg-opacity-80 p-6 rounded-lg shadow-lg flex flex-col items-center space-y-4 w-full max-w-md text-center">
           <h1 className="text-4xl font-bold">Select Your Role</h1>
           <p className="text-lg max-w-2xl">Choose your industry role to proceed with authentication.</p>

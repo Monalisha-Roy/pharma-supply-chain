@@ -5,7 +5,7 @@ import Link from "next/link";
 export default function Home() {
   return (
     <div
-      className="w-full min-h-screen flex flex-col items-center p-10 relative bg-cover bg-center overflow-hidden"
+      className="w-full h-screen flex flex-col items-center p-10 relative bg-cover bg-center overflow-hidden"
     >
       <div className="absolute inset-0">
         <Image
@@ -18,7 +18,7 @@ export default function Home() {
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center h-screen space-y-6 text-white text-center">
+      <div className="relative z-10 flex flex-col items-center justify-center h-full space-y-6 text-white text-center">
         <h1 className="text-6xl font-bold">Pharmaceutical Supply Chain Tracking</h1>
         <p className="text-lg">Your one-stop solution for safe, verified, and efficient medicine tracking.</p>
 
