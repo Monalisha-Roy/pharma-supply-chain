@@ -1,10 +1,10 @@
 "use client";
 
 import Navbar from "@/component/navbar";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image";
+import { BsQrCode } from "react-icons/bs";
 
 export default function Verify() {
   const router = useRouter();
@@ -18,13 +18,15 @@ export default function Verify() {
 
   return (
     <div className="w-full min-h-screen relative">
+      {/* Background Image */}
       <div className="absolute inset-0">
         <Image
-          src={"/verifyBg.jpg"}
+          src={"/bg.jpg"}
           alt={"background image"}
-          layout="fill"
-          objectFit="cover"
+          fill
+          style={{ objectFit: "cover" }}
           className="brightness-40"
+          priority
         />
       </div>
 
@@ -33,35 +35,64 @@ export default function Verify() {
         <Navbar />
 
         {/* Main Content */}
-        <div className="flex flex-col items-center justify-center h-screen space-y-6 text-black text-center pt-24">
-          <div className="flex flex-col md:flex-row items-center justify-center space-x-6 w-full max-w-4xl">
-            {/* Verification using Number */}
-            <div className="bg-gray-700 bg-opacity-30 p-10 rounded-lg shadow-2xl flex flex-col items-center space-y-6 w-full md:w-1/2 text-center h-96">
-              <h2 className="text-2xl font-bold text-white">Enter Verification ID</h2>
-              <input 
-                type="text" 
-                placeholder="Enter Verification ID" 
-                className="p-3 border rounded-md w-full" 
-                value={verificationId} 
-                onChange={(e) => setVerificationId(e.target.value)}
-              />
-              <button 
-                onClick={handleSubmit} 
-                className="p-3 px-5 bg-[#0cc0cf] text-white rounded-lg hover:bg-opacity-100 hover:scale-105 transition transform shadow-lg w-full"
-              >
-                Submit & Verify
-              </button>
+        <div className="flex flex-col items-center justify-center min-h-screen py-24 px-4">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-12 w-full max-w-6xl">
+            {/* Verification ID Section */}
+            <div className="bg-white bg-opacity-90 p-10 rounded-2xl shadow-xl flex flex-col items-center space-y-8 w-full md:w-1/2 h-[450px]">
+              <div className="text-center space-y-2">
+                <h2 className="text-3xl font-bold text-gray-800">Verify with Batch ID</h2>
+                <p className="text-gray-600">Enter your Batch ID</p>
+              </div>
+              
+              <div className="w-full space-y-6">
+                <input 
+                  type="text" 
+                  placeholder="e.g. 1234567890" 
+                  className="p-4 border border-gray-300 rounded-lg w-full focus:ring-2 focus:ring-[#0cc0cf] focus:border-transparent text-lg" 
+                  value={verificationId} 
+                  onChange={(e) => setVerificationId(e.target.value)}
+                />
+                <button 
+                  onClick={handleSubmit} 
+                  className="p-4 bg-[#0cc0cf] text-white rounded-lg hover:bg-[#0aa8b8] transition-all duration-300 shadow-md w-full font-medium text-lg"
+                >
+                  Verify Product
+                </button>
+              </div>
+              
+              <div className="mt-auto text-center text-gray-500 text-sm">
+                <p>Find the Batch ID on your product packaging</p>
+              </div>
             </div>
 
-            {/* Image Scanning */}
-            <div className="bg-gray-700 bg-opacity-30 p-10 rounded-lg shadow-2xl flex flex-col items-center space-y-6 w-full md:w-1/2 text-center h-96">
-              <h2 className="text-2xl font-bold text-white">Scan QR Code</h2>
-              <input type="file" accept="image/*" className="p-3 border rounded-md w-full"/>
-              <button 
-                className="p-3 px-5 bg-[#0cc0cf] text-white rounded-lg hover:bg-opacity-100 hover:scale-105 transition transform shadow-lg w-full"
-              >
-                Submit & Verify
-              </button>
+            {/* QR Code Section */}
+            <div className="bg-white bg-opacity-90 p-10 rounded-2xl shadow-xl flex flex-col items-center space-y-8 w-full md:w-1/2 h-[450px]">
+              <div className="text-center space-y-2">
+                <h2 className="text-3xl font-bold text-gray-800">Scan QR Code</h2>
+                <p className="text-gray-600">Upload product QR from device</p>
+              </div>
+              
+              <div className="flex items-center justify-center bg-gray-100 p-6 rounded-lg w-80 h-80">
+                <BsQrCode className="text-gray-400 w-40 h-40" />
+              </div>
+              
+              <div className="w-full space-y-4">
+                <label className="block">
+                  <span className="sr-only">Choose QR image</span>
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    className="hidden" 
+                    id="qr-upload"
+                  />
+                  <label 
+                    htmlFor="qr-upload" 
+                    className="p-4 bg-[#0cc0cf] text-white rounded-lg hover:bg-[#0aa8b8] transition-all duration-300 shadow-md w-full font-medium text-lg text-center cursor-pointer block"
+                  >
+                    Upload QR Image
+                  </label>
+                </label>
+              </div>
             </div>
           </div>
         </div>
