@@ -35,7 +35,7 @@ const Login: React.FC<LoginProps> = ({
     try {
       await signInWithEmailAndPassword(auth, email, password);
       onClose();
-      router.push("/homepage");
+      router.push("/verify");
     } catch (error) {
       if (error instanceof FirebaseError) {
         setError(error.message);
@@ -51,7 +51,7 @@ const Login: React.FC<LoginProps> = ({
     try {
       const result = await signInWithPopup(auth, provider);
       onClose();
-      router.push("/homepage");
+      router.push("/verify");
       console.log("user signed in with Google: ", result.user);
     } catch (error) {
       console.error("Error signing in with Google: ", error);

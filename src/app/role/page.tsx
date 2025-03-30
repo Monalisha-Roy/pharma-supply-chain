@@ -8,7 +8,7 @@ export default function IndustryLogin() {
       {/* Background Image with reduced brightness */}
       <div className="fixed inset-0 -z-10">
         <Image
-          src={"/bg.jpg"}
+          src={"/verifyBg.jpg"}
           alt={"background image"}
           fill
           style={{ objectFit: "cover" }}
@@ -25,7 +25,7 @@ export default function IndustryLogin() {
 
           {/* Role Selection */}
           <div className="flex flex-col space-y-4 w-full">
-            <Link href="/industry-login/manufacturer">
+            <Link href="/manufacturer">
               <button className="p-3 bg-[#0cc0cf] text-white rounded-lg hover:bg-opacity-100 hover:scale-105 transition transform shadow-lg w-full">
                 Manufacturer
               </button>

@@ -38,7 +38,7 @@ export default function Home() {
               Verify Your Medication
             </button>
           </Link>
-          <Link href="/industry-login">
+          <Link href="/role">
             <button className="p-3 px-5 bg-gray-600 bg-opacity-60 text-white rounded-lg hover:bg-opacity-100 hover:scale-105 transition transform shadow-lg">
               Industry Login
             </button>

@@ -32,7 +32,7 @@ export default function Verify() {
       {/* Background Image */}
       <div className="absolute inset-0">
         <Image
-          src={"/bg.jpg"}
+          src={"/verifyBg.jpg"}
           alt={"background image"}
           fill
           style={{ objectFit: "cover" }}

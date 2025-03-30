@@ -1,10 +1,37 @@
 import SideBar from "@/component/SideBar";
+import { MdDashboard, MdOutlineSettings } from "react-icons/md";
+import { TbTruckDelivery } from "react-icons/tb";
+import { GoAlertFill } from "react-icons/go";
 
 export default function Manufacturer() {
+
+    const sidebarItems = [
+            {
+                icon: <MdDashboard />,
+                text: "Dashboard",
+                route: "/distributor"
+            },
+            {
+                icon: <TbTruckDelivery />,
+                text: "Shipments",
+                route: "/distributor/shipments"
+            },
+            {
+                icon: <GoAlertFill />,
+                text: "Alerts",
+                route: "/distributor/alerts"
+            },
+            {
+                icon: <MdOutlineSettings />,
+                text: "Settings",
+                route: "/distributor/settings"
+            }
+        ];
+
     return (
         <div className="w-full min-h-screen bg-white flex">
             {/* Sidebar */}
-            <SideBar />
+            <SideBar sidebarItems={sidebarItems}/>
 
             {/* Main Content */}
             <div className="flex-1 p-6 ml-10 mt-10 flex flex-col space-y-6">
