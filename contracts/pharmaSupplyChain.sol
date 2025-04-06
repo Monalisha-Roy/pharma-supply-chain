@@ -3,18 +3,30 @@ pragma solidity ^0.8.0;
 
 contract PharmaSupplyChain {
     // Role Definitions
-    enum Role { None, Manufacturer, Distributor, HealthcareProvider, Regulator }
-    enum Status { Created, InTransit, Delivered, Verified, Recalled }
+    enum Role {
+        None,
+        Manufacturer,
+        Distributor,
+        HealthcareProvider,
+        Regulator
+    }
+    enum Status {
+        Created,
+        InTransit,
+        Delivered,
+        Verified,
+        Recalled
+    }
 
     struct Batch {
         uint batchID;
         string drugName;
         uint quantity;
-        uint manufacturingDate; 
+        uint manufacturingDate;
         uint expiryDate;
-        address manufacturer;
-        address distributor;
-        address healthcareProvider;
+        address payable manufacturer;
+        address payable distributor;
+        address payable healthcareProvider;
         Status status;
     }
 
@@ -26,28 +38,44 @@ contract PharmaSupplyChain {
     }
 
     // State Variables
-    address public regulator;
+    address payable public regulator;
     uint public nextBatchID;
     mapping(address => Role) public userRoles;
     mapping(uint => Batch) public batches;
     mapping(address => RoleRequest) public roleRequests;
     address[] public pendingRequests;
     mapping(address => uint) private requestIndices;
+    mapping(uint => uint) public batchStatusTimestamps;
+    mapping(uint => address[]) public batchHistory;
 
     // Events
     event RoleAssigned(address indexed user, Role role);
-    event BatchCreated(uint batchID, string drugName, uint quantity, uint manufacturingDate, uint expiryDate, address manufacturer);
+    event BatchCreated(
+        uint batchID,
+        string drugName,
+        uint quantity,
+        uint manufacturingDate,
+        uint expiryDate,
+        address manufacturer
+    );
     event BatchTransferred(uint batchID, address to, Status status);
     event BatchVerified(uint batchID, address healthcareProvider);
     event BatchRecalled(uint batchID, address recalledBy);
-    event ExpirationAlert(uint indexed batchID, bool isExpired, uint daysRemaining);
+    event ExpirationAlert(
+        uint indexed batchID,
+        bool isExpired,
+        uint daysRemaining
+    );
     event RoleRequested(address indexed user, Role requestedRole);
     event RoleApproved(address indexed user, Role role);
     event RoleDenied(address indexed user, Role role);
 
     // Modifiers
     modifier onlyRole(Role requiredRole) {
-        require(userRoles[msg.sender] == requiredRole, "Not authorized for this action");
+        require(
+            userRoles[msg.sender] == requiredRole,
+            "Not authorized for this action"
+        );
         _;
     }
 
@@ -65,8 +93,8 @@ contract PharmaSupplyChain {
         Batch memory batch = batches[batchID];
         require(
             msg.sender == regulator ||
-            msg.sender == batch.manufacturer ||
-            msg.sender == batch.healthcareProvider,
+                msg.sender == batch.manufacturer ||
+                msg.sender == batch.healthcareProvider,
             "Not authorized for batch alerts"
         );
         _;
@@ -74,7 +102,7 @@ contract PharmaSupplyChain {
 
     // Constructor
     constructor() {
-        regulator = msg.sender;
+        regulator = payable(msg.sender);
         userRoles[msg.sender] = Role.Regulator;
         nextBatchID = 1;
         emit RoleAssigned(msg.sender, Role.Regulator);
@@ -83,8 +111,15 @@ contract PharmaSupplyChain {
     // Role Management Functions
     function requestRole(Role requestedRole) public {
         require(userRoles[msg.sender] == Role.None, "Already has a role");
-        require(requestedRole != Role.Regulator, "Cannot request Regulator role");
-        require(!roleRequests[msg.sender].exists || roleRequests[msg.sender].processed, "Request already pending");
+        require(
+            requestedRole != Role.Regulator,
+            "Cannot request Regulator role"
+        );
+        require(
+            !roleRequests[msg.sender].exists ||
+                roleRequests[msg.sender].processed,
+            "Request already pending"
+        );
 
         roleRequests[msg.sender] = RoleRequest({
             requestedRole: requestedRole,
@@ -101,7 +136,10 @@ contract PharmaSupplyChain {
     function approveRoleRequest(address user) public onlyRegulator {
         require(roleRequests[user].exists, "No request found");
         require(!roleRequests[user].processed, "Request already processed");
-        require(roleRequests[user].requestedRole != Role.Regulator, "Cannot assign Regulator role");
+        require(
+            roleRequests[user].requestedRole != Role.Regulator,
+            "Cannot assign Regulator role"
+        );
 
         Role requestedRole = roleRequests[user].requestedRole;
         userRoles[user] = requestedRole;
@@ -145,8 +183,14 @@ contract PharmaSupplyChain {
         uint expiryDate
     ) public onlyRole(Role.Manufacturer) {
         require(bytes(drugName).length > 0, "Drug name required");
-        require(manufacturingDate < expiryDate, "Invalid manufacturing/expiry date");
-        require(manufacturingDate <= block.timestamp, "Manufacturing date cannot be in the future");
+        require(
+            manufacturingDate < expiryDate,
+            "Invalid manufacturing/expiry date"
+        );
+        require(
+            manufacturingDate <= block.timestamp,
+            "Manufacturing date cannot be in the future"
+        );
 
         batches[nextBatchID] = Batch({
             batchID: nextBatchID,
@@ -154,75 +198,106 @@ contract PharmaSupplyChain {
             quantity: quantity,
             manufacturingDate: manufacturingDate,
             expiryDate: expiryDate,
-            manufacturer: msg.sender,
-            distributor: address(0),
-            healthcareProvider: address(0),
+            manufacturer: payable(msg.sender),
+            distributor: payable(address(0)),
+            healthcareProvider: payable(address(0)),
             status: Status.Created
         });
 
-        emit BatchCreated(nextBatchID, drugName, quantity, manufacturingDate, expiryDate, msg.sender);
+        batchStatusTimestamps[nextBatchID] = block.timestamp;
+        batchHistory[nextBatchID].push(msg.sender);
+        emit BatchCreated(
+            nextBatchID,
+            drugName,
+            quantity,
+            manufacturingDate,
+            expiryDate,
+            msg.sender
+        );
         nextBatchID++;
     }
 
-    function transferToDistributor(uint batchID, address distributor)
-        public
-        onlyRole(Role.Manufacturer)
-        batchExists(batchID)
-    {
-        require(userRoles[distributor] == Role.Distributor, "Invalid distributor");
-        require(batches[batchID].status == Status.Created, "Batch not ready for transfer");
+    function transferToDistributor(
+        uint batchID,
+        address payable distributor
+    ) public onlyRole(Role.Manufacturer) batchExists(batchID) {
+        require(
+            userRoles[distributor] == Role.Distributor,
+            "Invalid distributor"
+        );
+        require(
+            batches[batchID].status == Status.Created,
+            "Batch not ready for transfer"
+        );
         require(batches[batchID].expiryDate > block.timestamp, "Batch expired");
-        
+
         batches[batchID].distributor = distributor;
         batches[batchID].status = Status.InTransit;
+        batchStatusTimestamps[batchID] = block.timestamp;
+        batchHistory[batchID].push(msg.sender);
+        batchHistory[batchID].push(distributor);
         emit BatchTransferred(batchID, distributor, Status.InTransit);
     }
 
-    function transferToHealthcare(uint batchID, address healthcareProvider)
-        public
-        onlyRole(Role.Distributor)
-        batchExists(batchID)
-    {
-        require(userRoles[healthcareProvider] == Role.HealthcareProvider, "Invalid provider");
-        require(batches[batchID].status == Status.InTransit, "Batch not in transit");
+    function transferToHealthcare(
+        uint batchID,
+        address payable healthcareProvider
+    ) public onlyRole(Role.Distributor) batchExists(batchID) {
+        require(
+            userRoles[healthcareProvider] == Role.HealthcareProvider,
+            "Invalid provider"
+        );
+        require(
+            batches[batchID].status == Status.InTransit,
+            "Batch not in transit"
+        );
         require(batches[batchID].expiryDate > block.timestamp, "Batch expired");
-        
+
         batches[batchID].healthcareProvider = healthcareProvider;
         batches[batchID].status = Status.Delivered;
+        batchStatusTimestamps[batchID] = block.timestamp;
+        batchHistory[batchID].push(msg.sender);
+        batchHistory[batchID].push(healthcareProvider);
         emit BatchTransferred(batchID, healthcareProvider, Status.Delivered);
     }
 
-    function verifyBatch(uint batchID)
-        public
-        onlyRole(Role.HealthcareProvider)
-        batchExists(batchID)
-    {
-        require(batches[batchID].status == Status.Delivered, "Batch not delivered yet");
+    function verifyBatch(
+        uint batchID
+    ) public onlyRole(Role.HealthcareProvider) batchExists(batchID) {
+        require(
+            batches[batchID].status == Status.Delivered,
+            "Batch not delivered yet"
+        );
         require(batches[batchID].expiryDate > block.timestamp, "Batch expired");
-        
+
         batches[batchID].status = Status.Verified;
+        batchStatusTimestamps[batchID] = block.timestamp;
+        batchHistory[batchID].push(msg.sender);
         emit BatchVerified(batchID, msg.sender);
     }
 
-    function recallBatch(uint batchID)
-        public
-        batchExists(batchID)
-    {
+    function recallBatch(uint batchID) public batchExists(batchID) {
         require(batches[batchID].status != Status.Recalled, "Already Recalled");
         require(
             msg.sender == regulator ||
-            (msg.sender == batches[batchID].manufacturer && batches[batchID].status != Status.Verified) ||
-            (msg.sender == batches[batchID].healthcareProvider && batches[batchID].status == Status.Delivered),
+                (msg.sender == batches[batchID].manufacturer &&
+                    batches[batchID].status != Status.Verified) ||
+                (msg.sender == batches[batchID].healthcareProvider &&
+                    batches[batchID].status == Status.Delivered),
             "Not authorized to recall"
         );
-        
+
         batches[batchID].status = Status.Recalled;
+        batchStatusTimestamps[batchID] = block.timestamp;
+        batchHistory[batchID].push(msg.sender);
         emit BatchRecalled(batchID, msg.sender);
         emit ExpirationAlert(batchID, false, 0);
     }
 
     // View Functions
-    function getBatchDetails(uint batchID)
+    function getBatchDetails(
+        uint batchID
+    )
         public
         view
         batchExists(batchID)
@@ -232,9 +307,9 @@ contract PharmaSupplyChain {
             uint manufacturingDate,
             uint expiryDate,
             Status status,
-            address manufacturer,
-            address distributor,
-            address healthcareProvider
+            address payable manufacturer,
+            address payable distributor,
+            address payable healthcareProvider
         )
     {
         Batch memory batch = batches[batchID];
@@ -250,12 +325,14 @@ contract PharmaSupplyChain {
         );
     }
 
-    function checkExpirationAlert(uint batchID)
-        public 
-        view 
+    function checkExpirationAlert(
+        uint batchID
+    )
+        public
+        view
         batchExists(batchID)
         onlyBatchAuthorized(batchID)
-        returns(
+        returns (
             bool isExpired,
             uint daysRemaining,
             bool needsAttention,
@@ -265,7 +342,7 @@ contract PharmaSupplyChain {
         Batch memory batch = batches[batchID];
         isRecalled = (batch.status == Status.Recalled);
 
-        if(isRecalled) {
+        if (isRecalled) {
             return (false, 0, false, true);
         }
 
@@ -273,7 +350,7 @@ contract PharmaSupplyChain {
         uint secondsRemaining = batch.expiryDate > block.timestamp
             ? batch.expiryDate - block.timestamp
             : 0;
-        
+
         daysRemaining = secondsRemaining / 1 days;
         needsAttention = isExpired || daysRemaining <= 7;
 
@@ -281,11 +358,25 @@ contract PharmaSupplyChain {
     }
 
     // Utility Functions
-    function getPendingRequests() public view onlyRegulator returns (address[] memory) {
+    function getPendingRequests()
+        public
+        view
+        onlyRegulator
+        returns (address[] memory)
+    {
         return pendingRequests;
     }
 
-    function getRequestStatus(address user) public view returns (RoleRequest memory) {
+    function getRequestStatus(
+        address user
+    ) public view returns (RoleRequest memory) {
         return roleRequests[user];
+    }
+
+    // View Ownership Transfer History
+    function getBatchHistory(
+        uint batchID
+    ) public view batchExists(batchID) returns (address[] memory) {
+        return batchHistory[batchID];
     }
 }
