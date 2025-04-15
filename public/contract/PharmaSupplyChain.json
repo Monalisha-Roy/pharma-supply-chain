@@ -33066,12 +33066,12 @@
         }
       },
       "links": {},
-      "address": "0xBfBe5F9D69CDEcb796B32d3f67A8be3DA1d91E98",
-      "transactionHash": "0xb672e4aa296fb6e7f55cd9d6965ad037a5433f496f4749bb0f9d0fe569b8b20e"
+      "address": "0x19522Fe31E8aA40021Ae25c26288e64005844F74",
+      "transactionHash": "0xc5e25114d713dda897cc3798a32e71a6a1c5a52ab3f212e693adeba82e0ffc9e"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2025-04-04T06:07:12.907Z",
+  "updatedAt": "2025-04-08T01:57:59.900Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",

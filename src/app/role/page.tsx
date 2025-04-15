@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import Web3 from "web3";
 
 // ✅ Correct RPC URL Configuration
-const RPC_URL = "http://localhost:7545";
-const CONTRACT_ADDRESS = "0xBfBe5F9D69CDEcb796B32d3f67A8be3DA1d91E98";
+const RPC_URL = "http://127.0.0.1:7545";
+const CONTRACT_ADDRESS = "0x19522Fe31E8aA40021Ae25c26288e64005844F74";
 
 export default function Role() {
   const [account, setAccount] = useState<string | null>(null);
@@ -38,20 +38,31 @@ export default function Role() {
           console.log("Connected to network:", networkId);
         } catch (error: any) {
           console.error("Error initializing Web3 or loading contract:", error);
-          alert("Failed to connect to MetaMask. Please try again.");
+
+          // Enhanced error handling
+          if (error.code === -32603) {
+            alert("Internal JSON-RPC error. Please check your contract or RPC provider.");
+          } else {
+            alert(`Failed to connect to MetaMask. Error: ${error.message}`);
+          }
         }
       } else {
         // ✅ Fallback to RPC URL if MetaMask not found
         const web3 = new Web3(new Web3.providers.HttpProvider(RPC_URL));
         console.log("Using fallback RPC URL...");
-        const accounts = await web3.eth.getAccounts();
-        setAccount(accounts[0]);
+        try {
+          const accounts = await web3.eth.getAccounts();
+          setAccount(accounts[0]);
 
-        const contractInstance = new web3.eth.Contract(
-          PharmaSupplyChainABI.abi as any,
-          CONTRACT_ADDRESS
-        );
-        setContract(contractInstance);
+          const contractInstance = new web3.eth.Contract(
+            PharmaSupplyChainABI.abi as any,
+            CONTRACT_ADDRESS
+          );
+          setContract(contractInstance);
+        } catch (error: any) {
+          console.error("Error using fallback RPC URL:", error);
+          alert("Failed to connect using fallback RPC URL. Please check your RPC provider.");
+        }
       }
     };
 
@@ -66,18 +77,36 @@ export default function Role() {
     }
 
     setLoading(true);
-console.log(contract);
- try {
-      await contract.methods.requestRole(1).send({ from: account })
-      .on('receipt', function(){
-        console.log('reci')
-    });
-      console.log(contract);
+    console.log("Contract instance:", contract);
+    console.log("Account:", account);
+    console.log("Role ID:", roleId); 
+    try {
+      await contract.methods.requestRole(roleId).send({ from: account })
+        .on("transactionHash", (hash: string) => {
+          console.log("Transaction hash:", hash);
+        })
+        .on("receipt", (receipt: any) => {
+          console.log("Transaction receipt:", receipt);
+        })
+        .on("error", (error: any) => {
+          console.error("Transaction error:", error);
+          throw error;
+        });
+
       setRoleRequested(true);
       alert("Role request submitted successfully! Awaiting approval.");
     } catch (error: any) {
       console.error("Error requesting role:", error);
-      alert(`Error: ${error.message}`);
+
+      // Enhanced error handling
+      if (error.code === -32603) {
+        console.error("Full error response:", error);
+        alert("Internal JSON-RPC error during role request. Please check your contract or RPC provider.");
+      } else if (error.message.includes("insufficient funds")) {
+        alert("Transaction failed due to insufficient funds in your account.");
+      } else {
+        alert(`Error requesting role: ${error.message}`);
+      }
     }
     setLoading(false);
   };
@@ -108,20 +137,29 @@ console.log(contract);
         roleId = 0;
         break;
     }
+
     if (contract) {
-      console.log('here');
+      console.log("Selected role:", role);
+      console.log("Role ID:", roleId);
+
       try {
         const currentRole = parseInt(await contract.methods.userRoles(account).call());
-        console.log(currentRole);
+        console.log("Current role:", currentRole);
+
         if (currentRole === roleId) {
           router.push(`/${role.toLowerCase()}`);
         } else {
-          // Request Role if Not Assigned
           await requestRole(roleId);
         }
       } catch (error: any) {
         console.error("Error fetching user role:", error);
-        alert(`Error: ${error.message}`);
+
+        // Enhanced error handling
+        if (error.code === -32603) {
+          alert("Internal JSON-RPC error while fetching user role. Please check your contract or RPC provider.");
+        } else {
+          alert(`Error fetching user role: ${error.message}`);
+        }
       }
     }
   };
