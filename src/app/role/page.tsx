@@ -3,11 +3,11 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import PharmaSupplyChainABI from "../../../public/contract/PharmaSupplyChain.json" assert { type: "json" };
 import { useRouter } from "next/navigation";
+import { CONTRACT_ADDRESS } from "@/lib/contractConfig";
 import Web3 from "web3";
 
 // ✅ Correct RPC URL Configuration
-const RPC_URL = "http://127.0.0.1:7545";
-const CONTRACT_ADDRESS = "0x19522Fe31E8aA40021Ae25c26288e64005844F74";
+ const RPC_URL = "http://127.0.0.1:7545";
 
 export default function Role() {
   const [account, setAccount] = useState<string | null>(null);

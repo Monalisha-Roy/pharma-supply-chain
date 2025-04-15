@@ -37,6 +37,11 @@ contract PharmaSupplyChain {
         bool processed;
     }
 
+    struct PendingRequest {
+        address user;
+        Role requestedRole;
+    }
+
     // State Variables
     address payable public regulator;
     uint public nextBatchID;
@@ -371,6 +376,25 @@ contract PharmaSupplyChain {
         address user
     ) public view returns (RoleRequest memory) {
         return roleRequests[user];
+    }
+
+    function getPendingRequestsWithRoles() 
+        public 
+        view 
+        onlyRegulator 
+        returns (PendingRequest[] memory) 
+    {
+        PendingRequest[] memory requests = new PendingRequest[](pendingRequests.length);
+        
+        for (uint i = 0; i < pendingRequests.length; i++) {
+            address user = pendingRequests[i];
+            requests[i] = PendingRequest({
+                user: user,
+                requestedRole: roleRequests[user].requestedRole
+            });
+        }
+        
+        return requests;
     }
 
     // View Ownership Transfer History

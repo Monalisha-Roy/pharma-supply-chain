@@ -1,2 +1,2 @@
-// /lib/contractConfig.ts
-export const CONTRACT_ADDRESS = "0x1b189B8AeEEBEBfBe686bDE7A1ee9ae18aE16229";
+
+export const CONTRACT_ADDRESS = "0x6a45D59ec0A326f7b354343Ddb4d47F551F54eC0";
