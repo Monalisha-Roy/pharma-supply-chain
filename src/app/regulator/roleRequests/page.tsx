@@ -6,12 +6,8 @@ import SideBar from "@/component/SideBar";
 import { MdDashboard, MdOutlineSettings } from "react-icons/md";
 import { GoAlertFill } from "react-icons/go";
 import { IoIosContacts } from "react-icons/io";
-import { CONTRACT_ADDRESS } from "@/lib/contractConfig";
+import { loadContract } from "@/lib/contract"; // Import the loadContract function from contract.ts
 import { AbiItem } from "web3-utils";
-
-// Import contract ABI properly
-import contractJSON from "../../../../public/contract/PharmaSupplyChain.json";
-const CONTRACT_ABI = contractJSON.abi as AbiItem[];
 
 // Role mapping for display
 const ROLE_NAMES: { [key: number]: string } = {
@@ -29,8 +25,8 @@ interface RoleRequest {
 
 export default function RoleRequests() {
     const [pendingRequests, setPendingRequests] = useState<RoleRequest[]>([]);
-    const [web3, setWeb3] = useState<Web3 | null>(null);
     const [account, setAccount] = useState<string | null>(null);
+    const [contract, setContract] = useState<any>(null);
 
     // Fixed sidebar routes for regulator
     const sidebarItems = [
@@ -41,7 +37,7 @@ export default function RoleRequests() {
         },
         {
             icon: <IoIosContacts size={38} />,
-            text: "RoleRequests",
+            text: "Role Requests",
             route: "/regulator/roleRequests",
         },
         {
@@ -56,32 +52,18 @@ export default function RoleRequests() {
         },
     ];
 
-    const loadContract = async () => {
-        if (typeof window.ethereum === "undefined") {
-            alert("Please install MetaMask to continue.");
-            return null;
-        }
+    useEffect(() => {
+        const initializeContract = async () => {
+            const { contract, account } = await loadContract();
+            setContract(contract);
+            setAccount(account);
+        };
 
-        try {
-            const web3Instance = new Web3(window.ethereum);
-            setWeb3(web3Instance);
-
-            const accounts = await window.ethereum.request({
-                method: "eth_requestAccounts"
-            });
-            setAccount(accounts[0]);
-
-            return new web3Instance.eth.Contract(CONTRACT_ABI, CONTRACT_ADDRESS);
-        } catch (error) {
-            console.error("Error loading contract:", error);
-            alert("Failed to connect. Check MetaMask and try again.");
-            return null;
-        }
-    };
+        initializeContract();
+    }, []);
 
     useEffect(() => {
         const loadPendingRequests = async () => {
-            const contract = await loadContract();
             if (!contract || !account) return;
 
             try {
@@ -98,16 +80,14 @@ export default function RoleRequests() {
         };
 
         loadPendingRequests();
-    }, [account]);
+    }, [contract, account]);
 
     // Function to approve a role request
     const approveRequest = async (user: string) => {
-        if (!web3 || !account) {
+        if (!contract || !account) {
             alert("MetaMask is not connected. Please connect MetaMask.");
             return;
         }
-
-        const contract = new web3.eth.Contract(CONTRACT_ABI, CONTRACT_ADDRESS);
 
         try {
             await contract.methods.approveRoleRequest(user).send({ from: account });
@@ -124,20 +104,18 @@ export default function RoleRequests() {
         }
     };
 
-    // Function to approve a role request
+    // Function to deny a role request
     const denyRequest = async (user: string) => {
-        if (!web3 || !account) {
+        if (!contract || !account) {
             alert("MetaMask is not connected. Please connect MetaMask.");
             return;
         }
 
-        const contract = new web3.eth.Contract(CONTRACT_ABI, CONTRACT_ADDRESS);
-
         try {
             await contract.methods.denyRoleRequest(user).send({ from: account });
-            alert(`Role request for ${user} denyed successfully!`);
+            alert(`Role request for ${user} denied successfully!`);
 
-            // Refresh the pending requests after approval
+            // Refresh the pending requests after denial
             const updatedRequests: RoleRequest[] = await contract.methods
                 .getPendingRequestsWithRoles()
                 .call({ from: account });
@@ -180,7 +158,7 @@ export default function RoleRequests() {
                                             >
                                                 Approve
                                             </button>
-                                            <button 
+                                            <button
                                                 onClick={() => denyRequest(request.user)}
                                                 className="px-3.5 rounded-lg p-1 bg-red-400 text-white transition-transform duration-200 ease-in-out transform hover:scale-105 hover:cursor-pointer"
                                             >

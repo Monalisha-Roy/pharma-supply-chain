@@ -1,92 +1,156 @@
-import SideBar from "@/component/SideBar";
+"use client";
+
+import { useEffect, useState } from "react";
 import { FaUndo } from "react-icons/fa";
 import { GiMedicinePills } from "react-icons/gi";
 import { MdDashboard, MdOutlineSettings } from "react-icons/md";
 import { TbTruckDelivery } from "react-icons/tb";
+import SideBar from "@/component/SideBar";
+import { loadContract } from "@/lib/contract";
+
+// Batch status enum
+enum BatchStatus {
+    Created = "0",
+    InTransit = "1",
+    Delivered = "2",
+    Verified = "3",
+    Recalled = "4"
+}
+
+interface Batch {
+    batchId: number;
+    status: BatchStatus;
+    expiryDate: string;
+}
+
+const sidebarItems = [
+    { icon: <MdDashboard />, text: "Dashboard", route: "/manufacturer" },
+    { icon: <GiMedicinePills />, text: "Batches", route: "/manufacturer/batches" },
+    { icon: <TbTruckDelivery />, text: "Transfers", route: "/manufacturer/transfers" },
+    { icon: <FaUndo />, text: "Recall", route: "/manufacturer/recall" },
+    { icon: <MdOutlineSettings />, text: "Settings", route: "/manufacturer/settings" }
+];
+
+const statusMap: Record<BatchStatus, { label: string; color: string }> = {
+    [BatchStatus.Created]: { label: "Created", color: "bg-yellow-100 text-yellow-800" },
+    [BatchStatus.InTransit]: { label: "In Transit", color: "bg-orange-100 text-orange-800" },
+    [BatchStatus.Delivered]: { label: "Delivered", color: "bg-blue-100 text-blue-800" },
+    [BatchStatus.Verified]: { label: "Verified", color: "bg-green-100 text-green-800" },
+    [BatchStatus.Recalled]: { label: "Recalled", color: "bg-red-100 text-red-800" }
+};
 
 export default function Batches() {
-    const sidebarItems = [
-        {
-            icon: <MdDashboard />,
-            text: "Dashboard",
-            route: "/manufacturer"
-        },
-        {
-            icon: <GiMedicinePills />,
-            text: "Batches",
-            route: "/manufacturer/batches"
-        },
-        {
-            icon: <TbTruckDelivery />,
-            text: "Transfers",
-            route: "/manufacturer/transfers"
-        },
-        {
-            icon: <FaUndo />,
-            text: "Recall",
-            route: "/manufacturer/recall"
-        },
-        {
-            icon: <MdOutlineSettings />,
-            text: "Settings",
-            route: "/manufacturer/settings"
+    const [batches, setBatches] = useState<Batch[]>([]);
+    const [account, setAccount] = useState<string | null>(null);
+    const [contract, setContract] = useState<any>(null);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const initializeContract = async () => {
+            const { contract, account } = await loadContract();
+            setContract(contract);
+            setAccount(account);
+        };
+        initializeContract();
+    }, []);
+
+    const formatBatches = (data: any[]): Batch[] => {
+        return data.map((batch) => ({
+            batchId: Number(batch[0]),
+            status: batch[1].toString(),
+            expiryDate: new Date(Number(batch[2]) * 1000).toLocaleDateString(),
+        }));
+    };
+
+    useEffect(() => {
+        const fetchBatches = async () => {
+            if (!contract || !account) return;
+            try {
+                const fetchedBatches = await contract.methods.getAllBatchesWithStatus().call({ from: account });
+                setBatches(formatBatches(fetchedBatches));
+            } catch (error) {
+                console.error("Error fetching batches:", error);
+            }
+        };
+        fetchBatches();
+    }, [contract, account]);
+
+    const recallBatch = async (batchId: string) => {
+        if (!contract || !account) return alert("Please connect MetaMask.");
+        try {
+            await contract.methods.recallBatch(batchId).send({ from: account });
+            const updated = await contract.methods.getAllBatchesWithStatus().call({ from: account });
+            setBatches(formatBatches(updated));
+            alert(`Batch ${batchId} recalled successfully!`);
+        } catch (error: any) {
+            alert(`Recall failed: ${error.message || error}`);
         }
-    ];
+    };
+
+    
 
     return (
         <div className="flex bg-white">
             <SideBar sidebarItems={sidebarItems} />
-            <div className="max-w-7xl mx-auto p-8">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold text-gray-800">ACTIVE BATCHES</h1>
-            </div>
+            <div className="max-w-7xl mx-auto p-8 w-full">
 
-            <div className="bg-white rounded-lg shadow-sm border">
-                <table className="w-full text-sm">
-                <thead className="bg-gray-50">
-                    <tr>
-                    <th className="px-8 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">BATCH ID</th>
-                    <th className="px-8 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STATUS</th>
-                    <th className="px-8 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ACTIONS</th>
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                    <tr>
-                    <td className="px-8 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#123</td>
-                    <td className="px-8 py-4 whitespace-nowrap">
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">
-                        In Transit
-                        </span>
-                    </td>
-                    <td className="px-8 py-4 whitespace-nowrap space-x-2">
-                        <button className="text-red-600 hover:text-red-900 text-sm font-medium">Recall</button>
-                        <button className="text-blue-600 hover:text-blue-900 text-sm font-medium">View</button>
-                    </td>
-                    </tr>
-
-                    <tr>
-                    <td className="px-8 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#343</td>
-                    <td className="px-8 py-4 whitespace-nowrap">
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                        Active
-                        </span>
-                    </td>
-                    <td className="px-8 py-4 whitespace-nowrap space-x-2">
-                        <button className="text-blue-600 hover:text-blue-900 text-sm font-medium">Transfer</button>
-                        <button className="text-blue-600 hover:text-blue-900 text-sm font-medium">View</button>
-                    </td>
-                    </tr>
-                </tbody>
-                </table>
-            </div>
-
-            <button className="bg-blue-600 mt-10 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-                </svg>
-                CREATE NEW BATCH
-                </button>
+                <div className="bg-white rounded-lg shadow-sm border overflow-x-auto">
+                    <table className="w-full text-sm">
+                        {/* Table header remains same */}
+                        <thead className="bg-gray-50">
+                            <tr>
+                                <th className="px-8 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Batch ID</th>
+                                <th className="px-8 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th className="px-8 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expiry Date</th>
+                                <th className="px-8 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        
+                        <tbody className="divide-y divide-gray-200">
+                            {batches.map((batch, index) => {
+                                const status = statusMap[batch.status as BatchStatus];
+                                return (
+                                    <tr key={index}>
+                                        <td className="px-8 py-4 text-sm text-gray-900">{batch.batchId}</td>
+                                        <td className="px-8 py-4">
+                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${status.color}`}>
+                                                {status.label}
+                                            </span>
+                                        </td>
+                                        <td className="px-8 py-4 text-sm text-gray-500">
+                                            {batch.expiryDate || "N/A"}
+                                        </td>
+                                        <td className="px-8 py-4 space-x-2">
+                                            {/* {batch.status === BatchStatus.InTransit && (
+                                                <button
+                                                    onClick={() => recallBatch(batch.batchId.toString())}
+                                                    className="text-red-600 hover:text-red-900 text-sm font-medium"
+                                                >
+                                                    Recall
+                                                </button>
+                                            )}
+                                            {batch.status === BatchStatus.Created && (
+                                                <button
+                                                    onClick={() => transferToDistributor(batch.batchId.toString())}
+                                                    disabled={loading}
+                                                    className={`text-blue-600 hover:text-blue-900 text-sm font-medium ${
+                                                        loading ? 'opacity-50 cursor-not-allowed' : ''
+                                                    }`}
+                                                >
+                                                    {loading ? 'Transferring...' : 'Transfer'}
+                                                </button>
+                                            )} */}
+                                            <button className="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
+                                                View
+                                            </button>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );
-};
+}

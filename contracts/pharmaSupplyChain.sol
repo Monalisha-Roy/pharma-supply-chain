@@ -42,6 +42,12 @@ contract PharmaSupplyChain {
         Role requestedRole;
     }
 
+    struct BatchSummary {
+        uint batchID;
+        Status status;
+        uint expiryDate;
+    }
+
     // State Variables
     address payable public regulator;
     uint public nextBatchID;
@@ -378,14 +384,16 @@ contract PharmaSupplyChain {
         return roleRequests[user];
     }
 
-    function getPendingRequestsWithRoles() 
-        public 
-        view 
-        onlyRegulator 
-        returns (PendingRequest[] memory) 
+    function getPendingRequestsWithRoles()
+        public
+        view
+        onlyRegulator
+        returns (PendingRequest[] memory)
     {
-        PendingRequest[] memory requests = new PendingRequest[](pendingRequests.length);
-        
+        PendingRequest[] memory requests = new PendingRequest[](
+            pendingRequests.length
+        );
+
         for (uint i = 0; i < pendingRequests.length; i++) {
             address user = pendingRequests[i];
             requests[i] = PendingRequest({
@@ -393,7 +401,7 @@ contract PharmaSupplyChain {
                 requestedRole: roleRequests[user].requestedRole
             });
         }
-        
+
         return requests;
     }
 
@@ -402,5 +410,119 @@ contract PharmaSupplyChain {
         uint batchID
     ) public view batchExists(batchID) returns (address[] memory) {
         return batchHistory[batchID];
+    }
+
+    function getAllBatchesWithStatus()
+        public
+        view
+        returns (BatchSummary[] memory)
+    {
+        uint totalBatches = nextBatchID - 1;
+        BatchSummary[] memory summaries = new BatchSummary[](totalBatches);
+
+        for (uint i = 1; i <= totalBatches; i++) {
+            summaries[i - 1] = BatchSummary({
+                batchID: i,
+                status: batches[i].status,
+                expiryDate: batches[i].expiryDate
+            });
+        }
+
+        return summaries;
+    }
+
+    function getBatchStatusCounts()
+        public
+        view
+        returns (uint active, uint recalled, uint inTransit)
+    {
+        uint totalBatches = nextBatchID - 1;
+        active = 0;
+        recalled = 0;
+        inTransit = 0;
+
+        for (uint i = 1; i <= totalBatches; i++) {
+            Status status = batches[i].status;
+
+            if (
+                status == Status.Verified ||
+                status == Status.Delivered ||
+                status == Status.Created
+            ) {
+                active++;
+            } else if (status == Status.Recalled) {
+                recalled++;
+            } else if (status == Status.InTransit) {
+                inTransit++;
+            }
+        }
+
+        return (active, recalled, inTransit);
+    }
+
+    function getTransferredBatchesByManufacturer(
+        address manufacturer
+    ) public view returns (BatchSummary[] memory) {
+        uint totalBatches = nextBatchID - 1;
+        uint count = 0;
+
+        for (uint i = 1; i <= totalBatches; i++) {
+            if (
+                batches[i].manufacturer == manufacturer &&
+                (batches[i].status == Status.InTransit ||
+                    batches[i].status == Status.Delivered ||
+                    batches[i].status == Status.Verified)
+            ) {
+                count++;
+            }
+        }
+
+        BatchSummary[] memory transferredBatches = new BatchSummary[](count);
+        uint index = 0;
+
+        for (uint i = 1; i <= totalBatches; i++) {
+            if (
+                batches[i].manufacturer == manufacturer &&
+                (batches[i].status == Status.InTransit ||
+                    batches[i].status == Status.Delivered ||
+                    batches[i].status == Status.Verified)
+            ) {
+                transferredBatches[index] = BatchSummary({
+                    batchID: i,
+                    status: batches[i].status,
+                    expiryDate: batches[i].expiryDate
+                });
+                index++;
+            }
+        }
+
+        return transferredBatches;
+    }
+
+    function getRecalledBatches() public view returns (BatchSummary[] memory) {
+        uint totalBatches = nextBatchID - 1;
+        uint count = 0;
+
+        for (uint i = 1; i <= totalBatches; i++) {
+            if (batches[i].status == Status.Recalled) {
+                count++;
+            }
+        }
+
+        BatchSummary[] memory recalledBatches = new BatchSummary[](count);
+        uint index = 0;
+
+        for (uint i = 1; i <= totalBatches; i++) {
+            if (batches[i].status == Status.Recalled) {
+                recalledBatches[index] = BatchSummary({
+                    batchID: i,
+                    status: batches[i].status,
+                    expiryDate: batches[i].expiryDate
+                });
+                index++;
+            }
+        }
+
+        return recalledBatches;
     }
 }
