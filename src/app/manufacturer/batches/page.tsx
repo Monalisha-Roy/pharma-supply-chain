@@ -87,14 +87,16 @@ export default function Batches() {
         }
     };
 
-    
+
 
     return (
         <div className="flex bg-white">
             <SideBar sidebarItems={sidebarItems} />
-            <div className="max-w-7xl mx-auto p-8 w-full">
-
-                <div className="bg-white rounded-lg shadow-sm border overflow-x-auto">
+            <div className="max-w-7xl mx-auto p-4 w-10/12">
+                <h1 className="text-xl text-black">Batches Page</h1>
+                <hr className="text-gray-400" />
+                <h2 className="text-3xl font-gold text-gray-700 mt-10 mb-2">All Batches</h2>
+                <div className="bg-white rounded-lg shadow-sm border overflow-x-auto ">
                     <table className="w-full text-sm">
                         {/* Table header remains same */}
                         <thead className="bg-gray-50">
@@ -105,7 +107,7 @@ export default function Batches() {
                                 <th className="px-8 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
-                        
+
                         <tbody className="divide-y divide-gray-200">
                             {batches.map((batch, index) => {
                                 const status = statusMap[batch.status as BatchStatus];
