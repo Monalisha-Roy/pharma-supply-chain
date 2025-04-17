@@ -1,31 +1,75 @@
 "use client";
-
 import Navbar from "@/component/navbar";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { BsQrCode } from "react-icons/bs";
 import { MdOutlineCloudUpload } from "react-icons/md";
+import QRCode from "qrcode";
+import { loadContract } from "@/lib/contract";
+import { BatchDetails } from "@/types/batchtypes";
 
 export default function Verify() {
   const router = useRouter();
   const [verificationId, setVerificationId] = useState("");
+  const [batchDetails, setBatchDetails] = useState<any | null>(null);
   const [qrFileName, setQrFileName] = useState<string | null>(null);
+  const [qrData, setQrData] = useState<string | null>(null);
+  const [contract, setContract] = useState<any>(null);
+  const [account, setAccount] = useState<string | null>(null);
+  const [selectedBatch, setSelectedBatch] = useState<BatchDetails | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleSubmit = () => {
-    if (verificationId) {
-      router.push(`/druginfo?verificationId=${verificationId}`);
-    }
-  };
+  useEffect(() => {
+    const initializeContract = async () => {
+      const { contract, account } = await loadContract();
+      setContract(contract);
+      setAccount(account);
+    };
+    initializeContract();
+  }, []);
 
-  const handleQrUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setQrFileName(file.name);
-    } else {
-      setQrFileName(null);
+  const handleSubmit = async (batchID: number) => {
+    try {
+       const details = await contract.methods.getBatchDetails(batchID).call();
+       setSelectedBatch({
+          batchID: batchID,
+          drugName: details[0],
+          quantity: Number(details[1]),
+          manufacturingDate: new Date(Number(details[2]) * 1000).toLocaleDateString(),
+          expiryDate: new Date(Number(details[3]) * 1000).toLocaleDateString(),
+          status: details[4].toString(),
+          manufacturer: details[5],
+          distributor: details[6],
+          healthcareProvider: details[7],
+       });
+       setIsModalOpen(true);
+    } catch (error: any) {
+       alert("Failed to fetch batch details: " + (error.message || error));
     }
-  };
+ };
+  
+  // const handleQrUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = event.target.files?.[0];
+  //   if (file) {
+  //     setQrFileName(file.name);
+
+  //     const reader = new FileReader();
+  //     reader.onload = async () => {
+  //       try {
+  //         const qrCodeData = await QRCode.decode(reader.result as string);
+  //         setQrData(qrCodeData);
+  //       } catch (error) {
+  //         console.error("Error decoding QR code:", error);
+  //         setQrData(null);
+  //       }
+  //     };
+  //     reader.readAsDataURL(file);
+  //   } else {
+  //     setQrFileName(null);
+  //     setQrData(null);
+  //   }
+  // };
 
   return (
     <div className="w-full min-h-screen relative">
@@ -66,12 +110,27 @@ export default function Verify() {
                   onChange={(e) => setVerificationId(e.target.value)}
                 />
                 <button
-                  onClick={handleSubmit}
+                  onClick={() => handleSubmit()}
                   className="p-4 bg-[#0cc0cf] text-white rounded-lg hover:bg-[#0aa8b8] transition-all duration-300 shadow-md w-full font-medium text-lg"
                 >
                   Verify Product
                 </button>
               </div>
+
+              {batchDetails && (
+                <div className="mt-4 text-gray-700 text-center">
+                  <h3 className="text-xl font-bold">Batch Details</h3>
+                  <p><strong>ID:</strong> {batchDetails.id}</p>
+                  <p><strong>Name:</strong> {batchDetails.name}</p>
+                  <p><strong>Batch Size:</strong> {batchDetails.batchSize}</p>
+                  <p><strong>Manufacturing Date:</strong> {batchDetails.manufacturingDate}</p>
+                  <p><strong>Expiry Date:</strong> {batchDetails.expiryDate}</p>
+                  <p><strong>Status:</strong> {batchDetails.status}</p>
+                  <p><strong>Manufacturer:</strong> {batchDetails.manufacturer}</p>
+                  <p><strong>Distributor:</strong> {batchDetails.distributor}</p>
+                  <p><strong>Healthcare Provider:</strong> {batchDetails.healthcareProvider}</p>
+                </div>
+              )}
 
               <div className="mt-auto text-center text-gray-500 text-sm">
                 <p>Find the Batch ID on your product packaging</p>
@@ -90,9 +149,8 @@ export default function Verify() {
               <div className="flex items-center justify-center bg-gray-100 p-10 rounded-lg ">
                 <BsQrCode className="text-gray-400 w-40 h-40" />
               </div>
-              
+
               <div className="w-full space-y-4">
-              
                 <label className="block">
                   <span className="sr-only">Choose QR image</span>
                   <input
@@ -100,13 +158,13 @@ export default function Verify() {
                     accept="image/*"
                     className="hidden"
                     id="qr-upload"
-                    onChange={handleQrUpload}
+                    
                   />
                   {qrFileName && (
-                  <p className="text-sm text-gray-600 text-center">
-                    Selected File: <strong>{qrFileName}</strong>
-                  </p>
-                )}
+                    <p className="text-sm text-gray-600 text-center">
+                      Selected File: <strong>{qrFileName}</strong>
+                    </p>
+                  )}
                   <label
                     htmlFor="qr-upload"
                     className="p-4 bg-[#0cc0cf] text-white rounded-lg hover:bg-[#0aa8b8] transition-all duration-300 shadow-md w-full font-medium text-lg text-center cursor-pointer flex items-center justify-center gap-2"
@@ -115,8 +173,14 @@ export default function Verify() {
                     <span>Upload QR Image</span>
                   </label>
                 </label>
-                
               </div>
+
+              {qrData && (
+                <div className="mt-4 text-gray-700 text-center">
+                  <h3 className="text-xl font-bold">QR Code Data</h3>
+                  <p>{qrData}</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

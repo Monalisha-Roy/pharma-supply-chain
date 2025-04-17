@@ -4,8 +4,7 @@ import { useEffect, useState } from "react";
 import { loadContract } from "@/lib/contract";
 import { Batch, BatchDetails, BatchStatus, statusMap } from "@/types/batchtypes";
 import { sidebarItems } from "../page";
-import BatchTable from "@/component/batchTable";
-
+import { MdVerified } from "react-icons/md";
 
 export default function healthcareVerify() {
     const [account, setAccount] = useState<string | null>(null);
@@ -46,14 +45,18 @@ export default function healthcareVerify() {
         fetchBatches();
     }, [contract, account, loading]);
 
-    const verifyBatch = async (batchId: string) => {
+    const verifyBatch = async (batchId: number) => {
         if (!contract || !account) return alert("Please connect MetaMask.");
         setLoading(true);
         try {
             await contract.methods
-                .verifyBatch(Number(batchId))
+                .verifyBatch(batchId)
                 .send({ from: account });
-            alert(`Batch ${batchId} Vefified successfully!`);
+
+            alert(`Batch ${batchId} Verified successfully!`);
+            setSelectedBatch(null);
+            const fetchedBatches = await contract.methods.getAllBatchesWithStatus().call({ from: account });
+            setBatches(formatBatches(fetchedBatches));
         } catch (error: any) {
             alert(`Verification failed: ${error.message || error}`);
         } finally {
@@ -112,36 +115,113 @@ export default function healthcareVerify() {
                         />
                         <button
                             className="py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 hover:cursor-pointer"
-                            onClick={(e) => {
+                            onClick={async (e) => {
                                 e.preventDefault();
                                 if (batchID) {
-                                    openModal(Number(batchID));
+                                    setLoading(true);
+                                    try {
+                                        await openModal(Number(batchID));
+                                    } catch (error) {
+                                        alert("Failed to fetch details. Please try again.");
+                                    } finally {
+                                        setLoading(false);
+                                    }
                                 } else {
                                     alert("Please enter a valid Batch ID.");
                                 }
                             }}
+                            disabled={loading}
                         >
-                            Check Details
+                            {loading ? "Loading..." : "Check Details"}
                         </button>
+                        {isModalOpen && selectedBatch && (
+                            <div className="fixed inset-0 flex items-center justify-center z-50">
+                                <div className="bg-[#dff9fb] rounded-xl p-6 w-full max-w-lg relative shadow-md">
+                                    <button
+                                        className="absolute top-3 right-3 text-gray-600 hover:bg-gray-500 hover:text-white rounded-full p-1 px-2"
+                                        onClick={closeModal}
+                                    >
+                                        ✕
+                                    </button>
+                                    <h2 className="text-2xl font-semibold mb-4 text-gray-800">Batch Details</h2>
+                                    <div className="space-y-2 text-gray-700 mb-10 p-4 border border-gray-600 rounded-2xl">
+                                        <p><strong>Batch ID:</strong> {selectedBatch.batchID}</p>
+                                        <p><strong>Drug Name:</strong> {selectedBatch.drugName}</p>
+                                        <p><strong>Quantity:</strong> {selectedBatch.quantity}</p>
+                                        <p><strong>Manufactured On:</strong> {selectedBatch.manufacturingDate}</p>
+                                        <p><strong>Expiry Date:</strong> {selectedBatch.expiryDate}</p>
+                                        <p>
+                                            <strong>Status:</strong>{" "}
+                                            <span className={`font-semibold px-2 text-sm rounded-full ${statusMap[selectedBatch.status as BatchStatus]?.color}`}>
+                                                {statusMap[selectedBatch.status as BatchStatus]?.label}
+                                            </span>
+                                        </p>
+                                        <p><strong>Manufacturer:</strong> {selectedBatch.manufacturer}</p>
+                                        <p><strong>Distributor:</strong> {selectedBatch.distributor}</p>
+                                        <p><strong>Healthcare Provider:</strong> {selectedBatch.healthcareProvider}</p>
+                                    </div>
+                                    {selectedBatch.status !== BatchStatus.Verified && (
+                                        <button
+                                            onClick={() => verifyBatch(selectedBatch.batchID)}
+                                            className="absolute bottom-3 right-3 px-8 py-2 text-lg font-semibold rounded-lg bg-green-500 hover:bg-green-600 hover:cursor-pointer flex gap-1.5 items-center"
+                                        >
+                                            <MdVerified size={25} />Verify
+                                        </button>
+                                    )}
 
+
+                                </div>
+                            </div>
+                        )}
                     </form>
                 </div>
 
                 <div className="w-full px-10">
                     <h2 className="text-2xl text-gray-600 mt-12 mb-4">Verified Batches</h2>
-                    <BatchTable status={BatchStatus.Verified}/>
+                    <div className="bg-white rounded-lg shadow-sm border overflow-x-auto">
+                        <table className="w-full text-sm">
+                            {/* Table header remains same */}
+                            <thead className="bg-gray-50">
+                                <tr>
+                                    <th className="px-8 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Batch ID</th>
+                                    <th className="px-8 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th className="px-8 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expiry Date</th>
+                                    <th className="px-8 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+
+                            <tbody className="divide-y divide-gray-200">
+                                {batches
+                                    .filter((batch) => batch.status === BatchStatus.Verified)
+                                    .map((batch, index) => {
+                                        const status = statusMap[batch.status as BatchStatus.Verified];
+                                        return (
+                                            <tr key={index}>
+                                                <td className="px-8 py-4 text-sm text-gray-900">{batch.batchId}</td>
+                                                <td className="px-8 py-4">
+                                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${status.color}`}>
+                                                        {status.label}
+                                                    </span>
+                                                </td>
+                                                <td className="px-8 py-4 text-sm text-gray-500">
+                                                    {batch.expiryDate || "N/A"}
+                                                </td>
+                                                <td className="px-8 py-4 space-x-2">
+                                                    <button
+                                                        onClick={() => openModal(batch.batchId)}
+                                                        className="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
+                                                        View
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+
             </main>
         </div>
     );
 }
-
-
-{/* <button
-    type="button"
-    onClick={() => recallBatch(batchID)}
-    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-    disabled={loading}
->
-    {loading ? 'Recalling...' : 'Reall Batch'}
-</button> */}

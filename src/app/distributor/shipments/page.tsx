@@ -47,7 +47,7 @@ export default function DistributorShipment() {
 
     const transferToHealthcare = async (batchId: string, healthcareAddress: string) => {
         if (!contract || !account) return alert("Please connect MetaMask.");
-        if (!healthcareAddress) return alert("Please enter distributor address");
+        if (!healthcareAddress) return alert("Please enter healthcare provider address");
         if (!/^0x[a-fA-F0-9]{40}$/.test(healthcareAddress)) return alert("Invalid Ethereum address");
 
         setLoading(true);
@@ -118,7 +118,7 @@ export default function DistributorShipment() {
                             type="text"
                             value={healthcareAddress}
                             onChange={(e) => setHealthcareAddress(e.target.value)}
-                            placeholder="Distributor Ethereum Address (0x...)"
+                            placeholder="HealthcareProvider Ethereum Address (0x...)"
                             className="border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4 text-gray-700"
                         />
                         <button
