@@ -42,13 +42,19 @@ export default function SideBar({ sidebarItems = [] }: SideBarProps) {
     : "Not Connected";
 
   return (
-    <aside className="h-screen w-72 hidden sm:flex flex-col bg-[#82e3f2]">
+    <aside className="h-screen w-72 fixed sm:flex flex-col bg-[#82e3f2]">
       <nav className="h-full flex flex-col">
         <div className="flex items-center justify-center gap-2.5 border">
-          <Image src={"/logo.png"} alt="logo" width={80} height={40} />
+          <Image
+            src="/logo.png"
+            alt="logo"
+            width={80}
+            height={80}
+            style={{ width: "auto", height: "auto" }} // Ensure aspect ratio is maintained
+          />
           <h1 className="text-[#0b1618] text-2xl font-bold">PharmaCo</h1>
         </div>
-        <div className="flex-1 overflow-y-auto px-3 my-2">
+        <div className="flex-1 px-3 my-2">
           <ul className="list-none p-0 m-0">
             {sidebarItems.map((item) => (
               <SideBarItem
@@ -63,13 +69,12 @@ export default function SideBar({ sidebarItems = [] }: SideBarProps) {
         </div>
         <div className="p-3 flex items-center justify-center gap-2 text-md text-[#0b1618]">
           <div>
-            <IoMdContact size={60}/>
+            <IoMdContact size={60} />
           </div>
           <div className="flex-col gap-1 font-bold text-gray-500">
             <p className="text-gray-700">User Address</p>
-          {formattedAddress}
+            {formattedAddress}
           </div>
-          
         </div>
       </nav>
     </aside>

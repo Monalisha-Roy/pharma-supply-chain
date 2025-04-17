@@ -336,47 +336,37 @@ contract PharmaSupplyChain {
         );
     }
 
-    function checkExpirationAlert(
-        uint batchID
-    )
-        public
-        view
-        batchExists(batchID)
-        onlyBatchAuthorized(batchID)
-        returns (
-            bool isExpired,
-            uint daysRemaining,
-            bool needsAttention,
-            bool isRecalled
-        )
-    {
-        Batch memory batch = batches[batchID];
-        isRecalled = (batch.status == Status.Recalled);
+    // function checkExpirationAlert(
+    //     uint batchID
+    // )
+    //     public
+    //     view
+    //     batchExists(batchID)
+    //     onlyBatchAuthorized(batchID)
+    //     returns (
+    //         bool isExpired,
+    //         uint daysRemaining,
+    //         bool needsAttention,
+    //         bool isRecalled
+    //     )
+    // {
+    //     Batch memory batch = batches[batchID];
+    //     isRecalled = (batch.status == Status.Recalled);
 
-        if (isRecalled) {
-            return (false, 0, false, true);
-        }
+    //     if (isRecalled) {
+    //         return (false, 0, false, true);
+    //     }
 
-        isExpired = (batch.expiryDate <= block.timestamp);
-        uint secondsRemaining = batch.expiryDate > block.timestamp
-            ? batch.expiryDate - block.timestamp
-            : 0;
+    //     isExpired = (batch.expiryDate <= block.timestamp);
+    //     uint secondsRemaining = batch.expiryDate > block.timestamp
+    //         ? batch.expiryDate - block.timestamp
+    //         : 0;
 
-        daysRemaining = secondsRemaining / 1 days;
-        needsAttention = isExpired || daysRemaining <= 7;
+    //     daysRemaining = secondsRemaining / 1 days;
+    //     needsAttention = isExpired || daysRemaining <= 7;
 
-        return (isExpired, daysRemaining, needsAttention, false);
-    }
-
-    // Utility Functions
-    function getPendingRequests()
-        public
-        view
-        onlyRegulator
-        returns (address[] memory)
-    {
-        return pendingRequests;
-    }
+    //     return (isExpired, daysRemaining, needsAttention, false);
+    // }
 
     function getRequestStatus(
         address user
@@ -458,45 +448,6 @@ contract PharmaSupplyChain {
         }
 
         return (active, recalled, inTransit);
-    }
-
-    function getTransferredBatchesByManufacturer(
-        address manufacturer
-    ) public view returns (BatchSummary[] memory) {
-        uint totalBatches = nextBatchID - 1;
-        uint count = 0;
-
-        for (uint i = 1; i <= totalBatches; i++) {
-            if (
-                batches[i].manufacturer == manufacturer &&
-                (batches[i].status == Status.InTransit ||
-                    batches[i].status == Status.Delivered ||
-                    batches[i].status == Status.Verified)
-            ) {
-                count++;
-            }
-        }
-
-        BatchSummary[] memory transferredBatches = new BatchSummary[](count);
-        uint index = 0;
-
-        for (uint i = 1; i <= totalBatches; i++) {
-            if (
-                batches[i].manufacturer == manufacturer &&
-                (batches[i].status == Status.InTransit ||
-                    batches[i].status == Status.Delivered ||
-                    batches[i].status == Status.Verified)
-            ) {
-                transferredBatches[index] = BatchSummary({
-                    batchID: i,
-                    status: batches[i].status,
-                    expiryDate: batches[i].expiryDate
-                });
-                index++;
-            }
-        }
-
-        return transferredBatches;
     }
 
     function getRecalledBatches() public view returns (BatchSummary[] memory) {
