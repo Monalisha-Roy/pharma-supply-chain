@@ -2,33 +2,8 @@
 import SideBar from "@/component/SideBar";
 import { loadContract } from "@/lib/contract";
 import { useEffect, useState } from "react";
-import { FaUndo } from "react-icons/fa";
-import { GiMedicinePills } from "react-icons/gi";
-import { MdDashboard, MdOutlineSettings } from "react-icons/md";
-import { TbTruckDelivery } from "react-icons/tb";
-import { BatchDetails } from "../batches/page";
-
-enum BatchStatus {
-    Created = "0",
-    InTransit = "1",
-    Delivered = "2",
-    Verified = "3",
-    Recalled = "4"
-}
-
-interface Batch {
-    batchId: number;
-    status: BatchStatus;
-    expiryDate: string;
-}
-
-const statusMap: Record<BatchStatus, { label: string; color: string }> = {
-    [BatchStatus.Created]: { label: "Created", color: "bg-yellow-100 text-yellow-800" },
-    [BatchStatus.InTransit]: { label: "In Transit", color: "bg-orange-100 text-orange-800" },
-    [BatchStatus.Delivered]: { label: "Delivered", color: "bg-blue-100 text-blue-800" },
-    [BatchStatus.Verified]: { label: "Verified", color: "bg-green-100 text-green-800" },
-    [BatchStatus.Recalled]: { label: "Recalled", color: "bg-red-100 text-red-800" }
-};
+import { sidebarItems } from "../page";
+import { Batch, BatchDetails, BatchStatus, statusMap } from "@/types/batchtypes";
 
 export default function Transfers() {
     const [account, setAccount] = useState<string | null>(null);
@@ -39,14 +14,6 @@ export default function Transfers() {
     const [batches, setBatches] = useState<Batch[]>([]);
     const [selectedBatch, setSelectedBatch] = useState<BatchDetails | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-
-    const sidebarItems = [
-        { icon: <MdDashboard />, text: "Dashboard", route: "/manufacturer" },
-        { icon: <GiMedicinePills />, text: "Batches", route: "/manufacturer/batches" },
-        { icon: <TbTruckDelivery />, text: "Transfers", route: "/manufacturer/transfers" },
-        { icon: <FaUndo />, text: "Recall", route: "/manufacturer/recall" },
-        { icon: <MdOutlineSettings />, text: "Settings", route: "/manufacturer/settings" }
-    ];
 
     useEffect(() => {
         const initializeContract = async () => {

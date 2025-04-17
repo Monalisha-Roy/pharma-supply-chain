@@ -5,30 +5,14 @@ import { TbTruckDelivery } from "react-icons/tb";
 import { GoAlertFill } from "react-icons/go";
 import { useEffect, useState } from "react";
 import { loadContract } from "@/lib/contract";
-import { BatchDetails } from "../manufacturer/batches/page";
+import { Batch, BatchDetails, BatchStatus, statusMap } from "@/types/batchtypes";
 
-enum BatchStatus {
-    Created = "0",
-    InTransit = "1",
-    Delivered = "2",
-    Verified = "3",
-    Recalled = "4"
-}
-
-interface Batch {
-    batchId: number;
-    status: BatchStatus;
-    expiryDate: string;
-}
-
-const statusMap: Record<BatchStatus, { label: string; color: string }> = {
-    [BatchStatus.Created]: { label: "Created", color: "bg-yellow-100 text-yellow-800" },
-    [BatchStatus.InTransit]: { label: "In Transit", color: "bg-orange-100 text-orange-800" },
-    [BatchStatus.Delivered]: { label: "Delivered", color: "bg-blue-100 text-blue-800" },
-    [BatchStatus.Verified]: { label: "Verified", color: "bg-green-100 text-green-800" },
-    [BatchStatus.Recalled]: { label: "Recalled", color: "bg-red-100 text-red-800" }
-};
-
+export const sidebarItems = [
+    { icon: <MdDashboard />, text: "Dashboard", route: "/distributor" },
+    { icon: <TbTruckDelivery />, text: "Shipments", route: "/distributor/shipments" },
+    { icon: <GoAlertFill />, text: "Alerts", route: "/distributor/alerts" },
+    { icon: <MdOutlineSettings />, text: "Settings", route: "/distributor/settings" }
+];
 
 export default function Manufacturer() {
     const [batches, setBatches] = useState<Batch[]>([]);
@@ -67,29 +51,6 @@ export default function Manufacturer() {
         };
         fetchBatches();
     }, [contract, account]);
-
-    const sidebarItems = [
-        {
-            icon: <MdDashboard />,
-            text: "Dashboard",
-            route: "/distributor"
-        },
-        {
-            icon: <TbTruckDelivery />,
-            text: "Shipments",
-            route: "/distributor/shipments"
-        },
-        {
-            icon: <GoAlertFill />,
-            text: "Alerts",
-            route: "/distributor/alerts"
-        },
-        {
-            icon: <MdOutlineSettings />,
-            text: "Settings",
-            route: "/distributor/settings"
-        }
-    ];
 
     const openModal = async (batchID: number) => {
         if (!contract || !account) return alert("Connect Wallet first!");

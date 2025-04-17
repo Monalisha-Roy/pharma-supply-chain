@@ -1,5 +1,4 @@
 "use client";
-
 import SideBar from "@/component/SideBar";
 import { MdDashboard, MdOutlineSettings } from "react-icons/md";
 import { GiMedicinePills } from "react-icons/gi";
@@ -7,6 +6,14 @@ import { TbTruckDelivery } from "react-icons/tb";
 import { FaUndo } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import { loadContract } from "@/lib/contract";
+
+export const sidebarItems = [
+    { icon: <MdDashboard />, text: "Dashboard", route: "/manufacturer" },
+    { icon: <GiMedicinePills />, text: "Batches", route: "/manufacturer/batches" },
+    { icon: <TbTruckDelivery />, text: "Transfers", route: "/manufacturer/transfers" },
+    { icon: <FaUndo />, text: "Recall", route: "/manufacturer/recall" },
+    { icon: <MdOutlineSettings />, text: "Settings", route: "/manufacturer/settings" }
+];
 
 export default function Manufacturer() {
     const [account, setAccount] = useState<string | null>(null);
@@ -83,17 +90,6 @@ export default function Manufacturer() {
             console.error("Error fetching batch status counts:", error);
         }
     }
-
-
-
-
-    const sidebarItems = [
-        { icon: <MdDashboard />, text: "Dashboard", route: "/manufacturer" },
-        { icon: <GiMedicinePills />, text: "Batches", route: "/manufacturer/batches" },
-        { icon: <TbTruckDelivery />, text: "Transfers", route: "/manufacturer/transfers" },
-        { icon: <FaUndo />, text: "Recall", route: "/manufacturer/recall" },
-        { icon: <MdOutlineSettings />, text: "Settings", route: "/manufacturer/settings" }
-    ];
 
     return (
         <div className="flex h-screen">
@@ -198,11 +194,6 @@ export default function Manufacturer() {
                         </div>
 
                     </div>
-
-
-
-
-
                     <div className="bg-white p-6 rounded-xl shadow-sm mt-8">
                         <h2 className="text-xl font-semibold text-gray-800 mb-6">RECENT ACTIVITY</h2>
                         <div className="border-b border-gray-100 pb-4 mb-4 last:border-0">

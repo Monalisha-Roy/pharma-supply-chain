@@ -1,55 +1,9 @@
 "use client";
-
 import { useEffect, useState } from "react";
-import { FaUndo } from "react-icons/fa";
-import { GiMedicinePills } from "react-icons/gi";
-import { MdDashboard, MdOutlineSettings } from "react-icons/md";
-import { TbTruckDelivery } from "react-icons/tb";
 import SideBar from "@/component/SideBar";
 import { loadContract } from "@/lib/contract";
-
-// Batch status enum
-export enum BatchStatus {
-   Created = "0",
-   InTransit = "1",
-   Delivered = "2",
-   Verified = "3",
-   Recalled = "4"
-}
-
-export interface Batch {
-   batchId: number;
-   status: BatchStatus;
-   expiryDate: string;
-}
-
-export interface BatchDetails {
-   batchID: number;
-   drugName: string;
-   quantity: number;
-   manufacturingDate: string;
-   expiryDate: string;
-   status: BatchStatus | string; // Support both if needed
-   manufacturer: string;
-   distributor: string;
-   healthcareProvider: string;
-}
-
-const sidebarItems = [
-   { icon: <MdDashboard />, text: "Dashboard", route: "/manufacturer" },
-   { icon: <GiMedicinePills />, text: "Batches", route: "/manufacturer/batches" },
-   { icon: <TbTruckDelivery />, text: "Transfers", route: "/manufacturer/transfers" },
-   { icon: <FaUndo />, text: "Recall", route: "/manufacturer/recall" },
-   { icon: <MdOutlineSettings />, text: "Settings", route: "/manufacturer/settings" }
-];
-
-export const statusMap: Record<BatchStatus, { label: string; color: string }> = {
-   [BatchStatus.Created]: { label: "Created", color: "bg-yellow-100 text-yellow-800" },
-   [BatchStatus.InTransit]: { label: "In Transit", color: "bg-orange-100 text-orange-800" },
-   [BatchStatus.Delivered]: { label: "Delivered", color: "bg-blue-100 text-blue-800" },
-   [BatchStatus.Verified]: { label: "Verified", color: "bg-green-100 text-green-800" },
-   [BatchStatus.Recalled]: { label: "Recalled", color: "bg-red-100 text-red-800" }
-};
+import { Batch, BatchDetails, BatchStatus, statusMap } from "@/types/batchtypes";
+import { sidebarItems } from "../page";
 
 export default function Batches() {
    const [batches, setBatches] = useState<Batch[]>([]);
@@ -110,7 +64,6 @@ export default function Batches() {
          alert("Failed to fetch batch details: " + (error.message || error));
       }
    };
-
 
    const closeModal = () => {
       setSelectedBatch(null);
@@ -191,8 +144,6 @@ export default function Batches() {
                                           </div>
                                        </div>
                                     )}
-
-
                                  </td>
                               </tr>
                            );
@@ -203,7 +154,5 @@ export default function Batches() {
             </div>
          </main>
       </div>
-
-
    );
 }

@@ -1,11 +1,9 @@
 'use client';
-import { Batch, BatchDetails, BatchStatus, statusMap } from "@/app/manufacturer/batches/page";
 import SideBar from "@/component/SideBar";
 import { loadContract } from "@/lib/contract";
+import { Batch, BatchDetails, BatchStatus, statusMap } from "@/types/batchtypes";
 import { useEffect, useState } from "react";
-import { GoAlertFill } from "react-icons/go";
-import { MdDashboard, MdOutlineSettings } from "react-icons/md";
-import { TbTruckDelivery } from "react-icons/tb";
+import { sidebarItems } from "../page";
 
 export default function DistributorShipment() {
     const [account, setAccount] = useState<string | null>(null);
@@ -16,13 +14,6 @@ export default function DistributorShipment() {
     const [batches, setBatches] = useState<Batch[]>([]);
     const [selectedBatch, setSelectedBatch] = useState<BatchDetails | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-
-    const sidebarItems = [
-        { icon: <MdDashboard />, text: "Dashboard", route: "/distributor" },
-        { icon: <TbTruckDelivery />, text: "Shipments", route: "/distributor/shipments" },
-        { icon: <GoAlertFill />, text: "Alerts", route: "/distributor/alerts" },
-        { icon: <MdOutlineSettings />, text: "Settings", route: "/distributor/settings" }
-    ];
 
     useEffect(() => {
         const initializeContract = async () => {
