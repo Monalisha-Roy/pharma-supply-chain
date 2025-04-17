@@ -9,7 +9,7 @@ import SideBar from "@/component/SideBar";
 import { loadContract } from "@/lib/contract";
 
 // Batch status enum
-enum BatchStatus {
+export enum BatchStatus {
    Created = "0",
    InTransit = "1",
    Delivered = "2",
@@ -17,7 +17,7 @@ enum BatchStatus {
    Recalled = "4"
 }
 
-interface Batch {
+export interface Batch {
    batchId: number;
    status: BatchStatus;
    expiryDate: string;
@@ -43,7 +43,7 @@ const sidebarItems = [
    { icon: <MdOutlineSettings />, text: "Settings", route: "/manufacturer/settings" }
 ];
 
-const statusMap: Record<BatchStatus, { label: string; color: string }> = {
+export const statusMap: Record<BatchStatus, { label: string; color: string }> = {
    [BatchStatus.Created]: { label: "Created", color: "bg-yellow-100 text-yellow-800" },
    [BatchStatus.InTransit]: { label: "In Transit", color: "bg-orange-100 text-orange-800" },
    [BatchStatus.Delivered]: { label: "Delivered", color: "bg-blue-100 text-blue-800" },
