@@ -1,15 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Web3 from "web3";
 import SideBar from "@/component/SideBar";
-import { MdDashboard, MdOutlineSettings } from "react-icons/md";
-import { GoAlertFill } from "react-icons/go";
-import { IoIosContacts } from "react-icons/io";
-import { loadContract } from "@/lib/contract"; // Import the loadContract function from contract.ts
-import { AbiItem } from "web3-utils";
+import { loadContract } from "@/lib/contract";
+import { sidebarItems } from "../page";
 
-// Role mapping for display
 const ROLE_NAMES: { [key: number]: string } = {
     0: "None",
     1: "Manufacturer",
@@ -27,30 +22,6 @@ export default function RoleRequests() {
     const [pendingRequests, setPendingRequests] = useState<RoleRequest[]>([]);
     const [account, setAccount] = useState<string | null>(null);
     const [contract, setContract] = useState<any>(null);
-
-    // Fixed sidebar routes for regulator
-    const sidebarItems = [
-        {
-            icon: <MdDashboard size={32} />,
-            text: "Dashboard",
-            route: "/regulator",
-        },
-        {
-            icon: <IoIosContacts size={38} />,
-            text: "Role Requests",
-            route: "/regulator/roleRequests",
-        },
-        {
-            icon: <GoAlertFill size={32} />,
-            text: "Alerts",
-            route: "/regulator/alerts", // Changed to regulator path
-        },
-        {
-            icon: <MdOutlineSettings size={32} />,
-            text: "Settings",
-            route: "/regulator/settings", // Changed to regulator path
-        },
-    ];
 
     useEffect(() => {
         const initializeContract = async () => {
@@ -128,50 +99,55 @@ export default function RoleRequests() {
 
     return (
         <div className="w-full min-h-screen bg-white flex">
-            <SideBar sidebarItems={sidebarItems} />
+            {/* Sidebar */}
+            <aside className="w-64 h-screen sticky top-0 bg-white shadow-md">
+                <SideBar sidebarItems={sidebarItems} />
+            </aside>
+            {/* Main Content */}
+            <main className="flex-1 overflow-y-auto w-full bg-teal-50">
+                <div className="flex-1 p-6 ml-10 mt-10 flex flex-col">
+                    <h3 className="text-[#15747c] text-3xl font-semibold mb-2">
+                        Role Requests
+                    </h3>
 
-            <div className="flex-1 p-6 ml-10 mt-10 flex flex-col">
-                <h3 className="text-[#15747c] text-3xl font-semibold mb-2">
-                    Role Requests
-                </h3>
-
-                <div className="bg-green-100 rounded-md shadow-md w-10/12 p-4">
-                    {pendingRequests.length === 0 ? (
-                        <p className="text-gray-600">No pending role requests found.</p>
-                    ) : (
-                        <ul className="space-y-2">
-                            {pendingRequests.map((request, index) => (
-                                <li
-                                    key={index}
-                                    className="bg-white p-3 rounded shadow text-gray-700 border-l-4 border-[#15747c]"
-                                >
-                                    <div className="flex flex-col gap-1">
-                                        <span><strong>Address:</strong> {request.user}</span>
-                                        <span>
-                                            <strong>Requested Role:</strong>{" "}
-                                            {ROLE_NAMES[request.requestedRole] || "Unknown Role"}
-                                        </span>
-                                        <div className="flex gap-2 mt-2">
-                                            <button
-                                                onClick={() => approveRequest(request.user)}
-                                                className="px-3.5 rounded-lg p-1 bg-green-400 text-white transition-transform duration-200 ease-in-out transform hover:scale-105 hover:cursor-pointer"
-                                            >
-                                                Approve
-                                            </button>
-                                            <button
-                                                onClick={() => denyRequest(request.user)}
-                                                className="px-3.5 rounded-lg p-1 bg-red-400 text-white transition-transform duration-200 ease-in-out transform hover:scale-105 hover:cursor-pointer"
-                                            >
-                                                Reject
-                                            </button>
+                    <div className="bg-green-100 rounded-md shadow-md w-10/12 p-4">
+                        {pendingRequests.length === 0 ? (
+                            <p className="text-gray-600">No pending role requests found.</p>
+                        ) : (
+                            <ul className="space-y-2">
+                                {pendingRequests.map((request, index) => (
+                                    <li
+                                        key={index}
+                                        className="bg-white p-3 rounded shadow text-gray-700 border-l-4 border-[#15747c]"
+                                    >
+                                        <div className="flex flex-col gap-1">
+                                            <span><strong>Address:</strong> {request.user}</span>
+                                            <span>
+                                                <strong>Requested Role:</strong>{" "}
+                                                {ROLE_NAMES[request.requestedRole] || "Unknown Role"}
+                                            </span>
+                                            <div className="flex gap-2 mt-2">
+                                                <button
+                                                    onClick={() => approveRequest(request.user)}
+                                                    className="px-3.5 rounded-lg p-1 bg-green-400 text-white transition-transform duration-200 ease-in-out transform hover:scale-105 hover:cursor-pointer"
+                                                >
+                                                    Approve
+                                                </button>
+                                                <button
+                                                    onClick={() => denyRequest(request.user)}
+                                                    className="px-3.5 rounded-lg p-1 bg-red-400 text-white transition-transform duration-200 ease-in-out transform hover:scale-105 hover:cursor-pointer"
+                                                >
+                                                    Reject
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
                 </div>
-            </div>
+            </main>
         </div>
     );
 }

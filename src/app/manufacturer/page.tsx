@@ -29,7 +29,6 @@ export default function Manufacturer() {
         recalled: 0,
     });
 
-
     useEffect(() => {
         const initializeContract = async () => {
             const { contract, account } = await loadContract();
@@ -106,13 +105,13 @@ export default function Manufacturer() {
                             <div className="text-4xl font-bold mb-2">
                                 {batchCounts.active}
                             </div>
-                            <div >ACTIVE BATCHES</div>
+                            <div>ACTIVE BATCHES</div>
                         </div>
                         <div className="bg-blue-100 text-blue-600 text-center p-6 w-64 rounded-xl shadow-sm">
                             <div className="text-4xl font-bold mb-2">
                                 {batchCounts.inTransit}
                             </div>
-                            <div >BATCHES IN TRANSIT</div>
+                            <div>BATCHES IN TRANSIT</div>
                         </div>
                         <div className="bg-red-200 text-red-600 text-center p-6 w-64 rounded-xl shadow-sm">
                             <div className="text-4xl font-bold">
@@ -123,7 +122,7 @@ export default function Manufacturer() {
                     </div>
 
                     <div className="w-full px-10 flex justify-around">
-                        <div className="">
+                        <div>
                             <div className="bg-white p-6 rounded-xl shadow-lg max-w-md w-96">
                                 <h2 className="text-xl font-semibold text-gray-800 mb-4">Create New Batch</h2>
                                 <form onSubmit={handleCreateBatch}>
@@ -187,38 +186,9 @@ export default function Manufacturer() {
                                 </form>
                             </div>
                         </div>
-                        <div className=" bg-blue-300 ">
-                            <div className="w-94 h-full bg-red-200">
-
-                            </div>
-                        </div>
-
-                    </div>
-                    <div className="bg-white p-6 rounded-xl shadow-sm mt-8">
-                        <h2 className="text-xl font-semibold text-gray-800 mb-6">RECENT ACTIVITY</h2>
-                        <div className="border-b border-gray-100 pb-4 mb-4 last:border-0">
-                            <div className="flex items-center justify-between">
-                                <div className="flex-1">
-                                    <div className="font-medium text-gray-900">Batch #1232</div>
-                                    <div className="text-gray-500 text-sm">
-                                        <span className="mr-2">created</span>
-                                        <span className="text-blue-500">→</span>
-                                        <span className="mx-2">Transferred to distributor</span>
-                                        <span className="text-blue-500">→</span>
-                                        <span className="ml-2">…</span>
-                                    </div>
-                                </div>
-                                <div className="flex space-x-2 text-gray-400">
-                                    <span>●</span>
-                                    <span>●</span>
-                                    <span>●</span>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </main>
         </div>
-
     );
 }

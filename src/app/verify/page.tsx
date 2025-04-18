@@ -5,9 +5,9 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { BsQrCode } from "react-icons/bs";
 import { MdOutlineCloudUpload } from "react-icons/md";
-import QRCode from "qrcode";
 import { loadContract } from "@/lib/contract";
-import { BatchDetails } from "@/types/batchtypes";
+import { BatchDetails, BatchStatus, statusMap } from "@/types/batchtypes";
+import { BrowserQRCodeReader } from '@zxing/browser';
 
 export default function Verify() {
   const router = useRouter();
@@ -23,53 +23,70 @@ export default function Verify() {
   useEffect(() => {
     const initializeContract = async () => {
       const { contract, account } = await loadContract();
+      if(!contract || !account) alert("Connect to a Wallet!");
       setContract(contract);
       setAccount(account);
     };
     initializeContract();
   }, []);
 
-  const handleSubmit = async (batchID: number) => {
-    try {
-       const details = await contract.methods.getBatchDetails(batchID).call();
-       setSelectedBatch({
-          batchID: batchID,
-          drugName: details[0],
-          quantity: Number(details[1]),
-          manufacturingDate: new Date(Number(details[2]) * 1000).toLocaleDateString(),
-          expiryDate: new Date(Number(details[3]) * 1000).toLocaleDateString(),
-          status: details[4].toString(),
-          manufacturer: details[5],
-          distributor: details[6],
-          healthcareProvider: details[7],
-       });
-       setIsModalOpen(true);
-    } catch (error: any) {
-       alert("Failed to fetch batch details: " + (error.message || error));
+  const handleSubmit = async () => {
+    if (!verificationId) {
+      alert("Please enter a Batch ID");
+      return;
     }
- };
-  
-  // const handleQrUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = event.target.files?.[0];
-  //   if (file) {
-  //     setQrFileName(file.name);
 
-  //     const reader = new FileReader();
-  //     reader.onload = async () => {
-  //       try {
-  //         const qrCodeData = await QRCode.decode(reader.result as string);
-  //         setQrData(qrCodeData);
-  //       } catch (error) {
-  //         console.error("Error decoding QR code:", error);
-  //         setQrData(null);
-  //       }
-  //     };
-  //     reader.readAsDataURL(file);
-  //   } else {
-  //     setQrFileName(null);
-  //     setQrData(null);
-  //   }
-  // };
+    const batchID = Number(verificationId);
+    if (isNaN(batchID)) {
+      alert("Invalid Batch ID");
+      return;
+    }
+
+    try {
+      const details = await contract.methods.getBatchDetails(batchID).call();
+      setSelectedBatch({
+        batchID: batchID,
+        drugName: details[0],
+        quantity: Number(details[1]),
+        manufacturingDate: new Date(Number(details[2]) * 1000).toLocaleDateString(),
+        expiryDate: new Date(Number(details[3]) * 1000).toLocaleDateString(),
+        status: details[4].toString(),
+        manufacturer: details[5],
+        distributor: details[6],
+        healthcareProvider: details[7],
+      });
+      setIsModalOpen(true);
+    } catch (error) {
+      if (error instanceof Error) {
+        alert("Failed to fetch batch details: " + error.message);
+      } else {
+        alert("Failed to fetch batch details: An unknown error occurred");
+      }
+    }
+  };
+
+
+  const handleQrUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setQrFileName(file.name);
+
+    try {
+      const codeReader = new BrowserQRCodeReader();
+      const result = await codeReader.decodeFromImageUrl(URL.createObjectURL(file));
+      setQrData(result.getText());
+
+      // Optional: If you want to automatically verify the QR content as batch ID
+      const qrBatchId = Number(result.getText());
+      // if (!isNaN(qrBatchId)) {
+      //   handleSubmit(qrBatchId);
+      // }
+    } catch (error) {
+      alert("Failed to decode QR code or invalid QR content");
+    }
+  };
+
 
   return (
     <div className="w-full min-h-screen relative">
@@ -110,25 +127,39 @@ export default function Verify() {
                   onChange={(e) => setVerificationId(e.target.value)}
                 />
                 <button
-                  onClick={() => handleSubmit()}
+                  onClick={handleSubmit}
                   className="p-4 bg-[#0cc0cf] text-white rounded-lg hover:bg-[#0aa8b8] transition-all duration-300 shadow-md w-full font-medium text-lg"
                 >
                   Verify Product
                 </button>
               </div>
 
-              {batchDetails && (
-                <div className="mt-4 text-gray-700 text-center">
-                  <h3 className="text-xl font-bold">Batch Details</h3>
-                  <p><strong>ID:</strong> {batchDetails.id}</p>
-                  <p><strong>Name:</strong> {batchDetails.name}</p>
-                  <p><strong>Batch Size:</strong> {batchDetails.batchSize}</p>
-                  <p><strong>Manufacturing Date:</strong> {batchDetails.manufacturingDate}</p>
-                  <p><strong>Expiry Date:</strong> {batchDetails.expiryDate}</p>
-                  <p><strong>Status:</strong> {batchDetails.status}</p>
-                  <p><strong>Manufacturer:</strong> {batchDetails.manufacturer}</p>
-                  <p><strong>Distributor:</strong> {batchDetails.distributor}</p>
-                  <p><strong>Healthcare Provider:</strong> {batchDetails.healthcareProvider}</p>
+              {isModalOpen && selectedBatch && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20">
+                  <div className="bg-white text-black p-8 rounded-lg max-w-md w-full">
+                    <h2 className="text-2xl font-bold mb-4">Batch Details</h2>
+                    <div className="space-y-2">
+                      <p><strong>Drug Name:</strong> {selectedBatch.drugName}</p>
+                      <p><strong>Quantity:</strong> {selectedBatch.quantity}</p>
+                      <p><strong>Manufacturing Date:</strong> {selectedBatch.manufacturingDate}</p>
+                      <p><strong>Expiry Date:</strong> {selectedBatch.expiryDate}</p>
+                      <p>
+                        <strong>Status:</strong>{" "}
+                        <span className={`font-semibold px-2 text-sm rounded-full ${statusMap[selectedBatch.status as BatchStatus]?.color}`}>
+                          {statusMap[selectedBatch.status as BatchStatus]?.label}
+                        </span>
+                      </p>
+                      <p><strong>Manufacturer:</strong> {selectedBatch.manufacturer}</p>
+                      <p><strong>Distributor:</strong> {selectedBatch.distributor}</p>
+                      <p><strong>Healthcare Provider:</strong> {selectedBatch.healthcareProvider}</p>
+                    </div>
+                    <button
+                      onClick={() => setIsModalOpen(false)}
+                      className="mt-4 bg-[#0cc0cf] text-white px-4 py-2 rounded hover:bg-[#0aa8b8]"
+                    >
+                      Close
+                    </button>
+                  </div>
                 </div>
               )}
 
@@ -158,7 +189,7 @@ export default function Verify() {
                     accept="image/*"
                     className="hidden"
                     id="qr-upload"
-                    
+                    onChange={handleQrUpload}
                   />
                   {qrFileName && (
                     <p className="text-sm text-gray-600 text-center">
@@ -177,8 +208,10 @@ export default function Verify() {
 
               {qrData && (
                 <div className="mt-4 text-gray-700 text-center">
-                  <h3 className="text-xl font-bold">QR Code Data</h3>
-                  <p>{qrData}</p>
+                  <h3 className="text-xl font-bold mb-2">QR Code Data</h3>
+                  <div className="bg-gray-100 p-4 rounded-lg break-words">
+                    {qrData}
+                  </div>
                 </div>
               )}
             </div>

@@ -8,7 +8,7 @@ import { sidebarItems } from "../page";
 export default function Recall() {
     const [account, setAccount] = useState<string | null>(null);
     const [contract, setContract] = useState<any>(null);
-    const [batchID, setBatchID] = useState<string>(''); // Changed from undefined to an empty string
+    const [batchID, setBatchID] = useState<string>('');
     const [loading, setLoading] = useState(false);
     const [batches, setBatches] = useState<Batch[]>([]);
     const [selectedBatch, setSelectedBatch] = useState<BatchDetails | null>(null);

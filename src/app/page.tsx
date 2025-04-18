@@ -12,31 +12,40 @@ declare global {
 
 export default function Home() {
   const [account, setAccount] = useState<string | null>(null);
+  const [loading1, setLoading1] = useState(false);
+  const [loading2, setLoading2] = useState(false);
   const router = useRouter();
 
   // MetaMask connection handler
   const connectMetaMask = async () => {
-    if (typeof window.ethereum !== "undefined") {
-      try {
-        const accounts = await window.ethereum.request({
-          method: "eth_requestAccounts",
-        });
-        if (accounts.length > 0) {
-          setAccount(accounts[0]);
-          console.log("Connected account:", accounts[0]);
-          router.push("/role");
-        }
-      } catch (error: any) {
-        if (error?.message) {
-          alert("MetaMask connection failed: " + error.message);
-        } else {
-          alert("MetaMask connection failed. Please try again.");
-        }
+    if (typeof window.ethereum === "undefined") {
+      window.alert("MetaMask is not installed. Please install MetaMask to proceed.");
+      return;
+    }
+  
+    const isVerifyPage = window.location.pathname === "/verify";
+    isVerifyPage ? setLoading2(true) : setLoading1(true);
+  
+    try {
+      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+  
+      if (accounts.length > 0) {
+        setAccount(accounts[0]);
+        console.log("Connected account:", accounts[0]);
+  
+        setTimeout(() => {
+          router.push(isVerifyPage ? "/role" :  "/verify");
+        }, 10);
       }
-    } else {
-      alert("MetaMask is not installed. Please install MetaMask to proceed.");
+    } catch (error: any) {
+      const errorMsg = error?.message || "MetaMask connection failed. Please try again.";
+      alert("MetaMask connection failed: " + errorMsg);
+    } finally {
+      setLoading1(false);
+      setLoading2(false);
     }
   };
+  
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center p-10 relative bg-cover bg-center overflow-hidden">
@@ -57,16 +66,20 @@ export default function Home() {
 
         {/* Buttons */}
         <div className="flex space-x-4">
-          <Link href="/verify">
-            <button className="p-3 px-5 bg-[#0cc0cf] bg-opacity-60 text-white rounded-lg hover:bg-opacity-100 hover:scale-105 transition transform shadow-lg">
-              Verify Your Medication
-            </button>
-          </Link>
+          <button
+            onClick={connectMetaMask}
+            className="p-3 px-5 bg-[#0cc0cf] bg-opacity-60 text-white rounded-lg hover:bg-opacity-100 hover:scale-105 transition transform shadow-lg"
+            disabled={loading1} // Disable button when loading1
+          >
+            {loading1 ? "Connecting..." : "Verify Your Medication"}
+          </button>
+
           <button
             onClick={connectMetaMask}
             className="p-3 px-5 bg-gray-600 bg-opacity-60 text-white rounded-lg hover:bg-opacity-100 hover:scale-105 transition transform shadow-lg"
+            disabled={loading2} // Disable button when loading2
           >
-            Industry Login
+            {loading2 ? "Connecting..." : "Industry Login"}
           </button>
         </div>
       </div>
