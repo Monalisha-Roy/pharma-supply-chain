@@ -44,13 +44,13 @@ export default function SideBar({ sidebarItems = [] }: SideBarProps) {
   return (
     <aside className="h-screen w-72 fixed sm:flex flex-col bg-[#82e3f2]">
       <nav className="h-full flex flex-col">
-        <div className="flex items-center justify-center gap-2.5 border">
+        <div className="flex items-center h-20 justify-center gap-2.5 m-5">
           <Image
             src="/logo.png"
             alt="logo"
             width={80}
             height={80}
-            style={{ width: "auto", height: "auto" }} // Ensure aspect ratio is maintained
+            style={{ width: "auto", height: "auto" }} 
           />
           <h1 className="text-[#0b1618] text-2xl font-bold">PharmaCo</h1>
         </div>

@@ -2,13 +2,14 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { loadContract } from "@/lib/contract"; // ⬅️ using your reusable loadContract function
+import { loadContract } from "@/lib/contract";
 
 export default function Role() {
   const [account, setAccount] = useState<string | null>(null);
   const [contract, setContract] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [roleRequested, setRoleRequested] = useState<boolean>(false);
+  const [redirecting, setRedirecting] = useState<boolean>(false);
 
   const router = useRouter();
 
@@ -19,11 +20,24 @@ export default function Role() {
       if (web3 && contract && account) {
         setContract(contract);
         setAccount(account);
+
+        // Check user's role and redirect if necessary
+        const currentRole = parseInt(await contract.methods.userRoles(account).call());
+        if (currentRole !== 0) {
+          setRedirecting(true); // Show loading screen
+          const roleMap: Record<number, string> = {
+            1: "manufacturer",
+            2: "distributor",
+            3: "healthcareprovider",
+            4: "regulator",
+          };
+          router.push(`/${roleMap[currentRole]}`);
+        }
       }
     };
 
     init();
-  }, []);
+  }, [router]);
 
   // 🔥 Request Role from Contract
   const requestRole = async (roleId: number) => {
@@ -71,6 +85,7 @@ export default function Role() {
     try {
       const currentRole = parseInt(await contract.methods.userRoles(account).call());
       if (currentRole === roleId) {
+        setRedirecting(true); // Show loading screen
         router.push(`/${role.toLowerCase()}`);
       } else {
         await requestRole(roleId);
@@ -84,6 +99,17 @@ export default function Role() {
       }
     }
   };
+
+  if (redirecting) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center bg-gray-100">
+        <div className="flex flex-col items-center">
+          <p className="text-xl font-semibold text-blue-500 mb-4">Redirecting to your dashboard...</p>
+          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-screen flex flex-col items-center p-10 relative overflow-hidden">

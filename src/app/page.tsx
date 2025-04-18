@@ -24,7 +24,7 @@ export default function Home() {
     }
   
     const isVerifyPage = window.location.pathname === "/verify";
-    isVerifyPage ? setLoading2(true) : setLoading1(true);
+    isVerifyPage ? setLoading1(true) : setLoading2(false);
   
     try {
       const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
@@ -34,7 +34,7 @@ export default function Home() {
         console.log("Connected account:", accounts[0]);
   
         setTimeout(() => {
-          router.push(isVerifyPage ? "/role" :  "/verify");
+          router.push(isVerifyPage ? "/verify" : "/role");
         }, 10);
       }
     } catch (error: any) {
