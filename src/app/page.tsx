@@ -35,10 +35,7 @@ export default function Home() {
       if (accounts.length > 0) {
         setAccount(accounts[0]);
         console.log("Connected account:", accounts[0]);
-
-        setTimeout(() => {
-          router.push(buttonNumber === 1 ? "/verify" : "/role");
-        }, 10);
+        router.push(buttonNumber === 1 ? "/verify" : "/role");
       }
     } catch (error: any) {
       const errorMsg = error?.message || "MetaMask connection failed. Please try again.";
