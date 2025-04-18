@@ -102,11 +102,9 @@ export default function Role() {
 
   if (redirecting) {
     return (
-      <div className="w-full h-screen flex items-center justify-center bg-gray-100">
-        <div className="flex flex-col items-center">
-          <p className="text-xl font-semibold text-blue-500 mb-4">Redirecting to your dashboard...</p>
-          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-        </div>
+      <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-60 z-50">
+        <div className="w-16 h-16 border-4 border-t-[#0cc0cf] border-white rounded-full animate-spin mb-4"></div>
+        <p className="text-white text-lg animate-pulse">Regirecting to your Dashboard...</p>
       </div>
     );
   }
