@@ -1,24 +1,23 @@
 'use client';
 import SideBar from "@/component/SideBar";
 import { MdDashboard, MdOutlineSettings } from "react-icons/md";
-import { TbTruckDelivery } from "react-icons/tb";
 import { GoAlertFill } from "react-icons/go";
+import { MdVerified } from "react-icons/md";
+import { Batch, BatchDetails, BatchStatus, statusMap } from "@/types/batchtypes";
 import { useEffect, useState } from "react";
 import { loadContract } from "@/lib/contract";
-import { Batch, BatchDetails, BatchStatus, statusMap } from "@/types/batchtypes";
 
 export const sidebarItems = [
-    { icon: <MdDashboard />, text: "Dashboard", route: "/distributor" },
-    { icon: <TbTruckDelivery />, text: "Shipments", route: "/distributor/shipments" },
-    { icon: <GoAlertFill />, text: "Alerts", route: "/distributor/alerts" },
-    { icon: <MdOutlineSettings />, text: "Settings", route: "/distributor/settings" }
+    { icon: <MdDashboard />, text: "Dashboard", route: "/healthcareprovider" },
+    { icon: <MdVerified />, text: "Verification", route: "/healthcareprovider/verify" },
+    { icon: <GoAlertFill />, text: "Alerts", route: "/healthcareprovider/alerts" },
+    { icon: <MdOutlineSettings />, text: "Settings", route: "/healthcareprovider/settings" },
 ];
 
-export default function Manufacturer() {
+export default function healthcareProvider() {
     const [batches, setBatches] = useState<Batch[]>([]);
     const [account, setAccount] = useState<string | null>(null);
     const [contract, setContract] = useState<any>(null);
-    const [loading, setLoading] = useState(false);
     const [selectedBatch, setSelectedBatch] = useState<BatchDetails | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -74,12 +73,10 @@ export default function Manufacturer() {
         }
     };
 
-
     const closeModal = () => {
         setSelectedBatch(null);
         setIsModalOpen(false);
     };
-
     return (
         <div className="flex h-screen">
             {/* Sidebar */}
@@ -107,9 +104,9 @@ export default function Manufacturer() {
 
                             <tbody className="divide-y divide-gray-200">
                                 {batches
-                                    .filter((batch) => batch.status === BatchStatus.InTransit)
+                                    .filter((batch) => batch.status === BatchStatus.Delivered || batch.status === BatchStatus.Verified)
                                     .map((batch, index) => {
-                                        const status = statusMap[batch.status as BatchStatus];
+                                        const status = statusMap[batch.status as BatchStatus.Delivered];
                                         return (
                                             <tr key={index}>
                                                 <td className="px-8 py-4 text-sm text-gray-900">{batch.batchId}</td>
@@ -128,8 +125,8 @@ export default function Manufacturer() {
                                                         View
                                                     </button>
                                                     {isModalOpen && selectedBatch && (
-                                                        <div className="fixed inset-0 z-50 flex items-center justify-center ">
-                                                            <div className="bg-[#dff9fb] rounded-xl p-6 w-full max-w-lg relative shadow-lg border-4 border-[#2ebfd6]">
+                                                        <div className="fixed inset-0 flex items-center justify-center z-50">
+                                                            <div className="bg-[#dff9fb] rounded-xl p-6 w-full max-w-lg relative shadow-md">
                                                                 <button
                                                                     className="absolute top-3 right-3 text-gray-600 hover:text-red-500"
                                                                     onClick={closeModal}

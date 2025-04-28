@@ -1,10 +1,12 @@
 import SideBar from "@/component/SideBar";
+import { sidebarItems } from "../page";
 
-export default function DistributorShipment() {
+export default function DistrubutorAlerts() {
+
     return (
         <div className="w-full min-h-screen bg-white flex">
             {/* Sidebar */}
-            <SideBar />
+            <SideBar sidebarItems={sidebarItems}/>
 
             {/* Main Content */}
             <div className="flex-1 p-6 ml-10 mt-10 flex flex-col space-y-6">
