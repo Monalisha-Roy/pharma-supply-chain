@@ -4,6 +4,7 @@ import { loadContract } from "@/lib/contract";
 import { useEffect, useState } from "react";
 import { sidebarItems } from "../page";
 import { Batch, BatchDetails, BatchStatus, statusMap } from "@/types/batchtypes";
+import { generateQRCode } from "@/app/regulator/page";
 
 export default function Transfers() {
     const [account, setAccount] = useState<string | null>(null);
@@ -66,30 +67,33 @@ export default function Transfers() {
 
     const openModal = async (batchID: number) => {
         if (!contract || !account) return alert("Connect Wallet first!");
-
+  
         try {
-            const details = await contract.methods.getBatchDetails(batchID).call({ from: account });
-            setSelectedBatch({
-                batchID: batchID,
-                drugName: details[0],
-                quantity: Number(details[1]),
-                manufacturingDate: new Date(Number(details[2]) * 1000).toLocaleDateString(),
-                expiryDate: new Date(Number(details[3]) * 1000).toLocaleDateString(),
-                status: details[4].toString(),
-                manufacturer: details[5],
-                distributor: details[6],
-                healthcareProvider: details[7],
-            });
-            setIsModalOpen(true);
+           const details = await contract.methods.getBatchDetails(batchID).call({ from: account });
+           const batchData = {
+              batchID: batchID,
+              drugName: details[0],
+              quantity: Number(details[1]),
+              manufacturingDate: new Date(Number(details[2]) * 1000).toLocaleDateString(),
+              expiryDate: new Date(Number(details[3]) * 1000).toLocaleDateString(),
+              status: details[4].toString(),
+              manufacturer: details[5],
+              distributor: details[6],
+              healthcareProvider: details[7],
+           };
+  
+           const qrCode = await generateQRCode(batchData);
+           setSelectedBatch({ ...batchData, qrCode }); // Store updated QR code with batch details
+           setIsModalOpen(true);
         } catch (error: any) {
-            alert("Failed to fetch batch details: " + (error.message || error));
+           alert("Failed to fetch batch details: " + (error.message || error));
         }
-    };
-
-    const closeModal = () => {
+     };
+  
+     const closeModal = () => {
         setSelectedBatch(null);
         setIsModalOpen(false);
-    };
+     };
 
     return (
         <div className="flex h-screen w-screen overflow-hidden">
@@ -191,6 +195,12 @@ export default function Transfers() {
                                                                     <p><strong>Manufacturer:</strong> {selectedBatch.manufacturer}</p>
                                                                     <p><strong>Distributor:</strong> {selectedBatch.distributor}</p>
                                                                     <p><strong>Healthcare Provider:</strong> {selectedBatch.healthcareProvider}</p>
+                                                                    {selectedBatch.qrCode && (
+                                                                        <div className="mt-4">
+                                                                            <p><strong>QR Code:</strong></p>
+                                                                            <img src={selectedBatch.qrCode} alt="Batch QR Code" className="w-32 h-32" />
+                                                                        </div>
+                                                                    )}
                                                                 </div>
                                                             </div>
                                                         </div>

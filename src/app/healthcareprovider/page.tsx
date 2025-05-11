@@ -6,6 +6,7 @@ import { MdVerified } from "react-icons/md";
 import { Batch, BatchDetails, BatchStatus, statusMap } from "@/types/batchtypes";
 import { useEffect, useState } from "react";
 import { loadContract } from "@/lib/contract";
+import { generateQRCode } from "../regulator/page";
 
 export const sidebarItems = [
     { icon: <MdDashboard />, text: "Dashboard", route: "/healthcareprovider" },
@@ -56,7 +57,7 @@ export default function healthcareProvider() {
 
         try {
             const details = await contract.methods.getBatchDetails(batchID).call({ from: account });
-            setSelectedBatch({
+            const batchData = {
                 batchID: batchID,
                 drugName: details[0],
                 quantity: Number(details[1]),
@@ -66,7 +67,10 @@ export default function healthcareProvider() {
                 manufacturer: details[5],
                 distributor: details[6],
                 healthcareProvider: details[7],
-            });
+            };
+
+            const qrCode = await generateQRCode(batchData); // Update QR code for the batch
+            setSelectedBatch({ ...batchData, qrCode }); // Store updated QR code with batch details
             setIsModalOpen(true);
         } catch (error: any) {
             alert("Failed to fetch batch details: " + (error.message || error));
@@ -149,6 +153,12 @@ export default function healthcareProvider() {
                                                                     <p><strong>Manufacturer:</strong> {selectedBatch.manufacturer}</p>
                                                                     <p><strong>Distributor:</strong> {selectedBatch.distributor}</p>
                                                                     <p><strong>Healthcare Provider:</strong> {selectedBatch.healthcareProvider}</p>
+                                                                    {selectedBatch.qrCode && (
+                                                                        <div className="mt-4">
+                                                                            <p><strong>QR Code:</strong></p>
+                                                                            <img src={selectedBatch.qrCode} alt="Batch QR Code" className="w-32 h-32" />
+                                                                        </div>
+                                                                    )}
                                                                 </div>
                                                             </div>
                                                         </div>

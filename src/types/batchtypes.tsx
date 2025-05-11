@@ -30,4 +30,5 @@ export interface BatchDetails {
    manufacturer: string;
    distributor: string;
    healthcareProvider: string;
+   qrCode?: string;
 }

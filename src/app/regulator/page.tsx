@@ -6,6 +6,7 @@ import { IoIosContacts } from "react-icons/io";
 import { useEffect, useState } from "react";
 import { loadContract } from "@/lib/contract";
 import { Batch, BatchDetails, BatchStatus, statusMap } from "@/types/batchtypes";
+import QRCode from "qrcode";
 
 export const sidebarItems = [
     { icon: <MdDashboard size={32} />, text: "Dashboard", route: "/regulator" },
@@ -13,6 +14,15 @@ export const sidebarItems = [
     { icon: <GoAlertFill size={32} />, text: "Alerts", route: "/regulator/alerts" },
     { icon: <MdOutlineSettings size={32} />, text: "Settings", route: "/regulator/settings" }
 ];
+export const generateQRCode = async (batchData: any) => {
+    try {
+        const qrData = await QRCode.toDataURL(JSON.stringify(batchData));
+        return qrData;
+    } catch (error) {
+        console.error("Error generating QR Code:", error);
+        return undefined;
+    }
+};
 
 export default function Regulator() {
     const [account, setAccount] = useState<string | null>(null);
@@ -23,9 +33,8 @@ export default function Regulator() {
         recalled: 0,
     });
     const [batches, setBatches] = useState<Batch[]>([]);
-    const [selectedBatch, setSelectedBatch] = useState<BatchDetails | null>(null);
+    const [selectedBatch, setSelectedBatch] = useState<BatchDetails | null>(null); // Use ExtendedBatchDetails
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const initializeContract = async () => {
@@ -81,12 +90,22 @@ export default function Regulator() {
         fetchBatches();
     }, [contract, account]);
 
+    const generateQRCode = async (batchData: any) => {
+        try {
+            const qrData = await QRCode.toDataURL(JSON.stringify(batchData));
+            return qrData;
+        } catch (error) {
+            console.error("Error generating QR Code:", error);
+            return undefined;
+        }
+    };
+
     const openModal = async (batchID: number) => {
         if (!contract || !account) return alert("Connect Wallet first!");
 
         try {
             const details = await contract.methods.getBatchDetails(batchID).call({ from: account });
-            setSelectedBatch({
+            const batchData = {
                 batchID: batchID,
                 drugName: details[0],
                 quantity: Number(details[1]),
@@ -96,7 +115,10 @@ export default function Regulator() {
                 manufacturer: details[5],
                 distributor: details[6],
                 healthcareProvider: details[7],
-            });
+            };
+
+            const qrCode = await generateQRCode(batchData); // Update QR code for the batch
+            setSelectedBatch({ ...batchData, qrCode }); // Store updated QR code with batch details
             setIsModalOpen(true);
         } catch (error: any) {
             alert("Failed to fetch batch details: " + (error.message || error));
@@ -198,6 +220,12 @@ export default function Regulator() {
                                                                 <p><strong>Manufacturer:</strong> {selectedBatch.manufacturer}</p>
                                                                 <p><strong>Distributor:</strong> {selectedBatch.distributor}</p>
                                                                 <p><strong>Healthcare Provider:</strong> {selectedBatch.healthcareProvider}</p>
+                                                                {selectedBatch.qrCode && (
+                                                                    <div className="mt-4">
+                                                                        <p><strong>QR Code:</strong></p>
+                                                                        <img src={selectedBatch.qrCode} alt="Batch QR Code" className="w-32 h-32" />
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         </div>
                                                     </div>
