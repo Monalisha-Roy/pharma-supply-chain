@@ -102,7 +102,7 @@ export default function Navbar() {
           />
         </Link>
         <div className="flex justify-end items-center gap-5">
-          <ul className="flex gap-7">
+          <ul className="flex gap-7 px-10">
             {links.map((link, index) => (
               <li key={index} className="inline-block uppercase font-semibold">
                 <Link
@@ -133,10 +133,7 @@ export default function Navbar() {
               />
 
               {hover && (
-                <div className="flex flex-col text-xs text-gray-800 absolute top-12 right-2 rounded-md bg-white p-1 hover:cursor-pointer">
-                  <a className="p-1 px-3 hover:bg-gray-300 rounded-sm ">
-                    Wishlist
-                  </a>
+                <div className="flex flex-col text-sm text-gray-800 absolute top-12 right-2 rounded-md bg-white p-1 hover:cursor-pointer">
                   <a
                     onClick={logout}
                     className="p-1 px-3 hover:bg-gray-300 rounded-sm "
@@ -148,10 +145,10 @@ export default function Navbar() {
             </div>
           )}
 
-          {!isLoggedIn && !showLogin && (
+          {/* {!isLoggedIn && !showLogin && (
             <button
               onClick={() => setShowLogin(true)}
-              className="bg-transparent text-text px-4 py-1 border border-text rounded-md text-md hover:bg-text hover:text-background"
+              className="bg-transparent text-text px-4 py-1 border border-text rounded-md text-md hover:bg-[#2ebfd6] hover:border-transparent hover:text-white "
             >
               Login
             </button>
@@ -159,11 +156,11 @@ export default function Navbar() {
           {!isLoggedIn && !showSigUp && (
             <button
               onClick={() => setShowSignUp(true)}
-              className="bg-transparent text-text px-4 py-1 border border-text rounded-md text-md hover:bg-text hover:text-background"
+              className="bg-transparent text-text px-4 py-1 border border-text rounded-md text-md hover:bg-[#2ebfd6] hover:border-transparent hover:text-white "
             >
               Signup
             </button>
-          )}
+          )} */}
         </div>
         <Login
           show={showLogin}
