@@ -207,10 +207,22 @@ export default function Verify() {
               </div>
 
               {qrData && (
-                <div className="mt-4 text-gray-700 text-center">
-                  <h3 className="text-xl font-bold mb-2">QR Code Data</h3>
-                  <div className="bg-gray-100 p-4 rounded-lg break-words">
-                    {qrData}
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20">
+                  <div className="bg-white text-black p-8 rounded-lg w-5/12">
+                  <div className="mt-4 text-gray-700 text-start">
+                    <h3 className="text-xl font-bold mb-2">QR Code Data</h3>
+                    <div className="bg-gray-100 p-4 rounded-lg break-words space-y-2">
+                    {qrData.split(",").map((data, index) => (
+                      <p key={index}>{data.trim()}</p>
+                    ))}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setQrData(null)}
+                    className="mt-4 bg-[#0cc0cf] text-white px-4 py-2 rounded hover:bg-[#0aa8b8]"
+                  >
+                    Close
+                  </button>
                   </div>
                 </div>
               )}
