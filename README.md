@@ -73,3 +73,5 @@ pharma-supply-chain/
 - **Distributor** – Transfers batches down the supply chain  
 - **Healthcare Provider** – Verifies and dispenses medicine  
 - **Regulator** – Monitors and approves participants
+
+### There is Firebase configurations as we planned to use them for normal users verification, but since we didn't use any off-chain storage system, all the data is stored on chain and the user needs connect to the blockchain to retrieve the batch related details. 
