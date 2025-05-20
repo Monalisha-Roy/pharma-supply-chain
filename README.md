@@ -37,34 +37,39 @@ pharma-supply-chain/
    ```bash
    git clone https://github.com/Monalisha-Roy/pharma-supply-chain.git
    cd pharma-supply-chain
+   ```
+
 2. **Install smart contract dependencies**
-  ```bash
-  cd smartcontract
-  npm install
-```
-3. **Start Ganache**
-  Make sure it's running on http://127.0.0.1:8545.
+   ```bash
+   cd smartcontract
+   npm install
+   ```
+
+3. **Start Ganache**  
+   Make sure it's running on http://127.0.0.1:8545.
+
 4. **Deploy the smart contract**
-  ```bash
-  truffle compile
-  truffle migrate
-```
+   ```bash
+   truffle compile
+   truffle migrate
+   ```
+
 5. **Run the frontend**
-  ```bash
-  cd ../client
-  npm install
-  npm start
-```
+   ```bash
+   cd ../client
+   npm install
+   npm start
+   ```
+
 6. **Connect MetaMask**
-  Import a Ganache account using the private key.
-    Set MetaMask network to:
-    Network Name: Localhost 8545
-    RPC URL: http://127.0.0.1:8545
-    Chain ID: 1337
+   - Import a Ganache account using the private key.
+   - Set MetaMask network to:
+     - Network Name: Localhost 8545  
+     - RPC URL: http://127.0.0.1:8545  
+     - Chain ID: 1337
 
 ## 🔐 Roles in the System
-  -**Manufacturer** – Creates medicine batches
-  -**Distributor** – Transfers batches down the supply chain
-  -**Healthcare Provider** – Verifies and dispenses medicine
-  -**Regulator** – Monitors and approves participants
-
+- **Manufacturer** – Creates medicine batches  
+- **Distributor** – Transfers batches down the supply chain  
+- **Healthcare Provider** – Verifies and dispenses medicine  
+- **Regulator** – Monitors and approves participants
