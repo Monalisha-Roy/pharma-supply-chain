@@ -20,8 +20,8 @@ A decentralized pharmaceutical supply chain management system built on Ethereum.
 
 ## 📁 Folder Structure
 pharma-supply-chain/
--├── client/ # Frontend files (HTML/JS/CSS or React)
--└── smartcontract/ # Solidity smart contracts
+├── client/ # Frontend files 
+└── smartcontract/ # Solidity smart contracts
 
 ## 🧑‍💻 Getting Started
 
